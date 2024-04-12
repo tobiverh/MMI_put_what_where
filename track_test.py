@@ -79,13 +79,23 @@ while run:
                 break
             if len(np.where(np.array(dist) < radius)[0]):
                 flip = True
+        if event.type == pygame.KEYDOWN and pygame.key.name(event.key) == 'space':
+            pos = circle_centers[-1]
+            pygame.mouse.set_pos(pos)
+            flip = True
+            if flip:
+                pygame.draw.circle(screen, cols[len(circle_centers) - 1%len(cols)], circle_centers[-1], radius)
+                pygame.display.flip()
+                break
+        if event.type == pygame.KEYUP and pygame.key.name(event.key) == 'space':
+            flip = False
         if flip:
             center = pygame.mouse.get_pos()
             screen.fill(colors.black)
             pygame.draw.circle(screen, colors.blue, circle_centers[0], radius)
-            if len(circle_centers) > 1:
-                for i, circle in enumerate(circle_centers[1:]):
-                    pygame.draw.circle(screen, cols[i - 1 % len(cols)], circle, radius)
+            # if len(circle_centers) > 1:
+            #     for i, circle in enumerate(circle_centers[1:]):
+            #         pygame.draw.circle(screen, cols[i - 1 % len(cols)], circle, radius)
 
             pygame.draw.circle(screen, colors.red, center, radius)
 
