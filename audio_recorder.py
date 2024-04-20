@@ -1,3 +1,6 @@
+### Taken directly from:
+# https://stackoverflow.com/questions/44894796/pyaudio-and-pynput-recording-while-a-key-is-being-pressed-held-down
+# on 20.04.2024
 from pynput import keyboard
 import time
 import pyaudio
