@@ -1,4 +1,4 @@
-# Taken directly from:
+# Taken (almost) directly from:
 # https://stackoverflow.com/questions/44894796/pyaudio-and-pynput-recording-while-a-key-is-being-pressed-held-down
 # on 20.04.2024
 
@@ -10,6 +10,8 @@ from MyListener import MyListener
 
 
 class AudioRecorder:
+    """AudioRecorder starts a keyboard listener to listen for key-key
+     presses to start recording to a given audio file."""
     def __init__(self, filename="output.wav"):
         self.CHUNK = 8192
         self.FORMAT = pyaudio.paInt16
@@ -27,11 +29,16 @@ class AudioRecorder:
         self.stream_in = None
 
     def callback(self, in_data, frame_count, time_info, status):
+        """Refer to
+        https://stackoverflow.com/questions/44894796/pyaudio-and-pynput-recording-while-a-key-is-being-pressed-held-down
+        """
         self.frame_list.append(in_data)
         return in_data, pyaudio.paContinue
 
     def recorder(self, started, p, stream, frames):
-        # global started, p, stream, frames
+        """Refer to
+        https://stackoverflow.com/questions/44894796/pyaudio-and-pynput-recording-while-a-key-is-being-pressed-held-down
+        """
 
         if self.listener.key_pressed and not started:
             # Start the recording
@@ -61,11 +68,11 @@ class AudioRecorder:
         task.enter(0.1, 1, self.recorder, (started, p, stream, frames))
 
 
-my_ar = AudioRecorder("release.wav")
+my_ar = AudioRecorder("my.wav")  # Start a recorder to "my.wav"
 
-print("Press and hold the 'r' key to begin recording")
-print("Release the 'r' key to end recording")
-task = sched.scheduler(time.time, time.sleep)
+print("Press and hold the 'shift' key to begin recording")
+print("Release the 'shift' key to end recording")
+task = sched.scheduler(time.time, time.sleep)  # Start scheduler
 task.enter(0.1, 1, my_ar.recorder,
-           (my_ar.is_started, my_ar.p_thang, my_ar.stream_in, my_ar.frame_list))
-task.run()
+           (my_ar.is_started, my_ar.p_thang, my_ar.stream_in, my_ar.frame_list))  # Enter the given task
+task.run()  # Run thread
