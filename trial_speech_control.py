@@ -1,6 +1,9 @@
 import threading
 
-from speech_listener import MyRecognizer
+import speech_recognition
+# from speech_listener import MyRecognizer
+import speech_recognition as sr
+# from MyListener import MyListener
 from threading import Thread
 import pygame
 from pygame.locals import *
@@ -28,8 +31,20 @@ def blackout(screen):
     pygame.display.flip()
 
 
+def recognize(ranger, recognizer, audio, screen, text_font):
+    global message, recognizing, done
+    recognizing = True
+    done = False
+    message = recognizer.recognize_google(audio)
+    # draw_text(screen, message, text_font)
+    recognizing = False
+    done = True
+    # return message
+
+
 def run():
-    recognizer = MyRecognizer()
+    # recognizer = MyRecognizer()
+    recognizer = sr.Recognizer()
 
     pygame.init()
     screen = pygame.display.set_mode(pygame.display.get_desktop_sizes()[0])
@@ -44,46 +59,73 @@ def run():
     timing = False
     start = -1
     c = 0
+    is_listening = False
+    global done
     while running:
         for event in pygame.event.get():
             on_quit(event)
             if event.type == pygame.KEYDOWN and pygame.key.name(event.key) == 'space':
                 blackout(screen)
                 draw_text(screen, 'Listening', text_font)
-                recognizer.start_listening()
+                is_listening = True
+                listening_time = time.time()
+                # recognizer.start_listening()
+
             if event.type == pygame.KEYUP and pygame.key.name(event.key) == 'space':
-                recognizer.stop_listening()
+                is_listening = False
+                with sr.AudioFile("release.wav") as source:
+                    audio = recognizer.record(source)
+                    display_thread = Thread(target=recognize, args=(range(10), recognizer, audio, screen, text_font))
+                    display_thread.daemon = True
+                    display_thread.start()
+                    # message = recognizer.recognize_google(audio)
+
+                # recognizer.stop_listening()
                 blackout(screen)
-                message = recognizer.get_message()
-                draw_text(screen, message, text_font)
-                timing = True
-                start = time.time()
+                # message = recognizer.get_message()
+
             if timing:
                 if time.time() - start > 2:
                     timing = False
                     blackout(screen)
 
+            if recognizing and not done:
+                draw_text(screen, 'recognizing', text_font)
 
-            if recognizer.is_listening():
-                modded = c % 5
-                if modded == 0:
+            if done and not recognizing:
+                blackout(screen)
+                draw_text(screen, message, text_font)
+                done = False
+                timing = True
+                start = time.time()
+
+            if is_listening:
+                modded = (time.time() - listening_time)
+                if 0.5 > modded >= 0:
                     draw_text(screen, 'Listening', text_font)
-                elif modded == 1:
+                elif 1 > modded >= 0.5:
                     draw_text(screen, 'Listening.', text_font)
-                elif modded == 2:
+                elif 1.5 > modded >= 1:
                     draw_text(screen, 'Listening..', text_font)
-                elif modded == 3:
+                elif 2 > modded >= 1.5:
                     draw_text(screen, 'Listening...', text_font)
                 else:
                     draw_text(screen, 'Listening....', text_font)
-                c += 1
+                # c += 1
 
-                pygame.display.flip()
+                if modded > 2.5:
+                    listening_time = time.time()
+                    blackout(screen)
+
+                # pygame.display.flip()
 
 
 if __name__ == '__main__':
-    display_thread = Thread(target=run)
-    display_thread.daemon = True
-    display_thread.start()
-    display_thread.join()
-    # run()
+    message = ''
+    recognizing = False
+    done = False
+    # display_thread = Thread(target=run)
+    # display_thread.daemon = True
+    # display_thread.start()
+    # display_thread.join()
+    run()
