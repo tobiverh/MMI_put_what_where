@@ -1,4 +1,5 @@
 # from speech_listener import MyRecognizer
+import numpy as np
 import speech_recognition as sr
 from threading import Thread
 import pygame
@@ -98,26 +99,41 @@ def update():
     pygame.display.update()
 
 
-def listening(listening_time, screen, text_font):
+def listening(disp_list, listening_time, screen, text_font):
     modded = (time.time() - listening_time)  # Get time since listening started
     # Emulate progress bar
     if 0.5 > modded >= 0:
-        draw_text(screen, 'Listening', text_font)
+        disp_list.append((draw_text, screen, 'Listening', text_font))
     elif 0.5 <= modded < 1:
-        draw_text(screen, 'Listening.', text_font)
+        disp_list.append((draw_text, screen, 'Listening.', text_font))
     elif 1.5 > modded >= 1:
-        draw_text(screen, 'Listening..', text_font)
+        disp_list.append((draw_text, screen, 'Listening..', text_font))
     elif 2 > modded >= 1.5:
-        draw_text(screen, 'Listening...', text_font)
+        disp_list.append((draw_text, screen, 'Listening...', text_font))
     else:
-        draw_text(screen, 'Listening....', text_font)
+        disp_list.append((draw_text, screen, 'Listening....', text_font))
 
     if modded > 2.5:  # reset timer every 2.5 seconds
         listening_time = time.time()
-        blackout(screen)  # clear screen
-        draw_text(screen, 'Listening', text_font)
-        # draw_circles(screen, original_circle_pos, new_circle_pos)
+        disp_list.append((blackout, screen))  # clear screen
+        disp_list.append((draw_text, screen, 'Listening', text_font))
+
     return listening_time
+
+
+def dequeue(disp_list):
+    if disp_list:
+        for i in range(len(disp_list)):
+            try:
+                func, *args = disp_list[i]
+            except TypeError:
+                continue
+            func(*args)
+
+        disp_list = []
+        update()
+
+    return disp_list
 
 
 def run():
@@ -128,13 +144,15 @@ def run():
     text_font = init_font()
 
     timing = is_listening = False
-    start = -1
+    start = np.inf
     a = True
 
     original_circle_pos = new_circle_pos = (1600, 250)
     draw_circles(screen, original_circle_pos, new_circle_pos)
     update()
     flip = is_recognizing = False
+
+    display_item_list = []
 
     global done, running, my_recorder
 
@@ -147,8 +165,8 @@ def run():
                 my_recorder = AudioRecorder('test.wav')
                 init_recorder(my_recorder)
                 my_recorder.listener.on_press()
-                blackout(screen)  # Clear screen
-                draw_circles(screen, original_circle_pos, new_circle_pos)
+                display_item_list.append((blackout, screen))  # Clear screen
+                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))
                 # update()
                 is_listening = True  # Set is_listening to True
                 listening_time = time.time()  # start timer for how long listening lasts
@@ -158,34 +176,42 @@ def run():
             if event.type == pygame.KEYUP and pygame.key.name(event.key) == 'space':
                 my_recorder.listener.on_release()
                 is_listening = False  # Stop listening
-                blackout(screen)  # Clear screen
-                draw_circles(screen, original_circle_pos, new_circle_pos)
-                is_recognizing = True
-                draw_text(screen, 'recognizing', text_font)  # Inform user that we are processing
+                is_recognizing = True  # Start recognizing
+                display_item_list.append((blackout, screen))  # Clear screen
+                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))
+                display_item_list.append((draw_text, screen, 'recognizing', text_font))  # Inform user that we are processing
                 # update()
-                if not a:
-                    with (sr.AudioFile("release.wav") as source):  # Take input file as audio source
-                        audio = recognizer.record(source)  # convert from audio file to usable
-                        # Start 'recognize' function thread
-                        a = True
-                        recognition_thread = Thread(target=recognize, args=(range(10), recognizer, audio))
-                        recognition_thread.daemon = True
-                        recognition_thread.start()
-                        # message = recognizer.recognize_google(audio)
-                else:
-                    with (sr.AudioFile("select.wav") as source):  # Take input file as audio source
-                        audio = recognizer.record(source)  # convert from audio file to usable
-                        # Start 'recognize' function thread
-                        a = False
-                        recognition_thread = Thread(target=recognize, args=(range(10), recognizer, audio))
-                        recognition_thread.daemon = True
-                        recognition_thread.start()
-                        # message = recognizer.recognize_google(audio)
+                # if not a:
+                #     with (sr.AudioFile("release.wav") as source):  # Take input file as audio source
+                #         audio = recognizer.record(source)  # convert from audio file to usable
+                #         # Start 'recognize' function thread
+                #         a = True
+                #         recognition_thread = Thread(target=recognize, args=(range(10), recognizer, audio))
+                #         recognition_thread.daemon = True
+                #         recognition_thread.start()
+                #         # message = recognizer.recognize_google(audio)
+                # else:
+                #     with (sr.AudioFile("select.wav") as source):  # Take input file as audio source
+                #         audio = recognizer.record(source)  # convert from audio file to usable
+                #         # Start 'recognize' function thread
+                #         a = False
+                #         recognition_thread = Thread(target=recognize, args=(range(10), recognizer, audio))
+                #         recognition_thread.daemon = True
+                #         recognition_thread.start()
+                #         message = recognizer.recognize_google(audio)
+                while my_recorder.is_started:
+                    time.sleep(0.05)
+                with sr.AudioFile('test.wav') as source:
+                    audio = recognizer.record(source)
+                    recognition_thread = Thread(target=recognize, args=(range(10), recognizer, audio))
+                    recognition_thread.daemon = True
+                    recognition_thread.start()
 
             if done:  # indicates that the recognition_thread has finished
-                blackout(screen)  # clear screen
-                draw_circles(screen, original_circle_pos, new_circle_pos)
-                draw_text(screen, message, text_font)  # Draw the recognized message
+                time.sleep(0.1)
+                display_item_list.append((blackout, screen))  # Queue clear screen
+                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))  # Queue circles
+
                 done = False  # Reset done bool
                 is_recognizing = False
                 timing = True  # start message display timer
@@ -196,35 +222,34 @@ def run():
                     flip = True
                 elif message == 'release':
                     flip = False
-                # if flip:
-                #     pygame.draw.circle(screen, cols[len(circle_centers) - 1 % len(cols)], circle_centers[-1], radius)
-                #     pygame.display.flip()
-                #     break
 
-            if flip:
-                new_circle_pos = pygame.mouse.get_pos()
-                blackout(screen)
-                if is_listening:
-                    listening_time = listening(listening_time, screen, text_font)
-                if is_recognizing:
-                    draw_text(screen, 'recognizing', text_font)  # Inform user that we are processing
-                if timing:
-                    draw_text(screen, message, text_font)  # Draw the recognized message
-                draw_circles(screen, original_circle_pos, new_circle_pos, flip)
-                # update()
+            if flip:  # Object selected for movement
+                new_circle_pos = pygame.mouse.get_pos()  # Find mouse position to reposition circle
 
-            if is_listening and not flip:
-                listening_time = listening(listening_time, screen, text_font)
-                # update()
+                display_item_list.append(blackout(screen))  # Queue screen clearing
+                # Queue objects to display
+                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos, flip))
 
-            if timing:  # If message display timer is started
-                if time.time() - start > 2:  # Check if more than 2 seconds
+            if is_recognizing:  # Check if recognizing audio, inform user if so
+                display_item_list.append((draw_text, screen, 'recognizing', text_font))
+
+            if flip and is_listening and not is_recognizing:  # Check if recording has started after object selection
+                listening_time = listening(display_item_list, listening_time, screen, text_font)
+                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos, flip))
+
+            if is_listening and not flip and not is_recognizing:  # Recording before object selection
+                listening_time = listening(display_item_list, listening_time, screen, text_font)
+                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))
+
+            if timing and not is_listening and not is_recognizing:  # If message display timer is active
+                if time.time() - start > 2:  # If longer than allotted time
                     timing = False  # Stop timing
-                    blackout(screen)  # Clear screen
-                    draw_circles(screen, original_circle_pos, new_circle_pos)
-                    # update()
+                    display_item_list.append((blackout, screen))  # Clear screen
+                    display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))
+                else:
+                    display_item_list.append((draw_text, screen, message, text_font))  # Queue recognized message
 
-            update()
+            display_item_list = dequeue(display_item_list)  # If information to be displayed, update display
 
 
 if __name__ == '__main__':

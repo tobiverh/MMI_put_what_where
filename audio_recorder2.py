@@ -63,6 +63,7 @@ class AudioRecorder:
                                 stream_callback=self.callback)
                 print("Stream active:", stream.is_active())
                 started = True
+                self.is_started = True
                 print("start Stream")
             except ValueError:
                 print('ValueError thrown... Something seems to be off!')
@@ -75,6 +76,7 @@ class AudioRecorder:
             self.listener.wf.writeframes(b''.join(frames))
             self.listener.wf.close()
             print("You should have a wav file in the current directory")
+            self.is_started = False
             sys.exit()
         # Reschedule the recorder function in 100 ms.
         self.task.enter(0.1, 1, self.recorder, (started, p, stream, frames))
@@ -86,6 +88,7 @@ class AudioRecorder:
 # print("Press and hold the 'shift' key to begin recording")
 # print("Release the 'shift' key to end recording")
 # task = sched.scheduler(time.time, time.sleep)  # Start scheduler
+# my_ar.set_task(task)
 # task.enter(0.1, 1, my_ar.recorder,
 #            (my_ar.is_started, my_ar.p_thang, my_ar.stream_in, my_ar.frame_list))  # Enter the given task
 # task.run()  # Run thread

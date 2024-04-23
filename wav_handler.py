@@ -21,6 +21,8 @@ class WavHandler:
 
     def on_press(self):
         self.key_pressed = True
+        return True
 
     def on_release(self):
         self.key_pressed = False
+        return True
