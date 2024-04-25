@@ -46,7 +46,11 @@ def recognize(ranger, recognizer, audio):
     global message, done
     # message: String where recognized audio is
     # done: bool set to True once the recognition algorithm has finished
-    message = recognizer.recognize_google(audio)  # recognize audio using google's free audio recognition model
+    try:
+        message = recognizer.recognize_google(audio)  # recognize audio using google's free audio recognition model
+    except sr.exceptions.UnknownValueError:
+        message = 'Could not recognize user input'
+        print('Unknown Value, try again...')
     done = True  # Note end of recognition
 
 
@@ -226,7 +230,7 @@ def run():
             if flip:  # Object selected for movement
                 new_circle_pos = pygame.mouse.get_pos()  # Find mouse position to reposition circle
 
-                display_item_list.append(blackout(screen))  # Queue screen clearing
+                display_item_list.append((blackout, screen))  # Queue screen clearing
                 # Queue objects to display
                 display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos, flip))
 
