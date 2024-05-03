@@ -19,7 +19,7 @@
 #
 
 # MAIN
-DUMMYMODE = False # False for gaze contingent display, True for dummy mode (using mouse or joystick)
+DUMMYMODE = True # False for gaze contingent display, True for dummy mode (using mouse or joystick)
 print("Please type your name between quotes (e.g. 'player1') and press Enter")
 print("(do not use more than 8 letters!)\n")
 LOGFILENAME = input("Player name: ") # logfilename, without path
@@ -41,7 +41,7 @@ KEYTIMEOUT = 1 # None for no timeout, or a value in milliseconds
 
 # EYETRACKER
 # general
-TRACKERTYPE = 'eyelink' # either 'smi', 'eyelink' or 'dummy' (NB: if DUMMYMODE is True, trackertype will be set to dummy automatically)
+TRACKERTYPE = 'opengaze' # either 'smi', 'eyelink' or 'dummy' (NB: if DUMMYMODE is True, trackertype will be set to dummy automatically)
 SACCVELTHRESH = 35 # degrees per second, saccade velocity threshold
 SACCACCTHRESH = 9500 # degrees per second, saccade acceleration threshold
 # EyeLink only
