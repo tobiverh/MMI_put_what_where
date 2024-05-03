@@ -10,23 +10,23 @@ class MetaSpeechRecognizer(ABC):
     - is_listening()"""
 
     @abstractmethod
-    def __init__():
+    def __init__(self):
         """Initializes the speech recognizer."""
 
     @abstractmethod
-    def start_listening():
+    def start_listening(self):
         """Should set the speech recognizer in listening mode."""
 
     @abstractmethod
-    def stop_listening():
+    def stop_listening(self):
         """Should make the speech recognizer stop listening."""
 
     @abstractmethod
-    def get_message():
+    def get_message(self):
         """Should return the recognized message."""
 
     @abstractmethod
-    def is_listening():
+    def is_listening(self):
         """Boolean - True if recognizer is listening."""
 
 class MetaEyeTracker(ABC):
