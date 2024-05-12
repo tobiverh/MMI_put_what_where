@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 class MetaSpeechRec(ABC):
     """Meta class for speech recognizers.\n
+    Holds both an AudioRecorder and a SpeechRecognizer.\n
     Methods:
     - __init__()
     - start_listening()
@@ -79,8 +80,13 @@ class MetaSpeechRecognizer(ABC):
         """Initializes the speech recognizer."""
 
     @abstractmethod
-    def recognize_audio(self, audio):
-        """Recognizes speech from the given audio file."""
+    def start_recognizing_audio(self, audio):
+        """Starts recognizing speech from the given audio file."""
+
+    @abstractmethod
+    def stop_recognizing_audio(self, audio):
+        """Stops recognizing speech from the given audio file."""
+    
 
     @abstractmethod
     def get_message(self):

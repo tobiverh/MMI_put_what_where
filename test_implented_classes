@@ -1,0 +1,29 @@
+from implemented_classes import Recorder, SpeechRecognizer
+import pygame
+
+pygame.init()
+pygame.display.init()
+pygame.display.set_mode(list(pygame.display.get_desktop_sizes()[0]))
+recorder = Recorder()
+running = True
+
+while running:
+    for event in pygame.event.get():
+        print(event.type)
+
+        # Handle space key being pressed down!
+        if event.type == pygame.KEYDOWN and pygame.key.name(event.key) == 'space':
+            recorder.start_listening()
+
+        # Handle space key being released!
+        if event.type == pygame.KEYUP and pygame.key.name(event.key) == 'space':
+            recorder.stop_listening()
+            running = False
+            break
+
+        pygame.display.update()
+
+recognizer = SpeechRecognizer(recorder.audio_file)
+recognizer.recognize_audio()
+
+print(f"Recognized message: {recognizer.get_message()}.")
