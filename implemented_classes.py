@@ -9,66 +9,70 @@ from threading import Thread
 
 
 class Recorder(MetaRecorder):
-    def __init__(self):
-        root_dir = os.path.dirname(os.path.abspath(__file__))
-        self.audio_file = root_dir + 'audio_recording.wav'
-        self.recorder = AudioRecorder(filename=self.audio_file)
+    def __init__(self, audio_filename):
+        self.audio_filename = audio_filename
+        self.recorder = AudioRecorder(filename=self.audio_filename)
 
     def start_listening(self):
         init_recorder(self.recorder)
-        # self.recorder.is_started = True
-        #TODO: Remove print-statement ones done testing
-        print("Recorder initialized")
+        self.recorder.listener.on_press()
 
     def stop_listening(self):
+        self.recorder.listener.on_release()
         while (self.is_listening() or not self.has_audio()):
-            print()
             time.sleep(0.05)
-        #TODO: Remove print-statement ones done testing
-        print("Recorder stopped listening")
-        
 
     def is_listening(self):
         return self.recorder.is_started
     
+    def get_path(self):
+        """The whole path of the the recorder's output file"""
+        root_dir = os.path.dirname(os.path.abspath(__file__))
+        return os.path.join(root_dir, self.audio_filename)
+    
     def has_audio(self):
-        return os.path.exists(self.audio_file)
+        return os.path.exists(self.get_path())
     
     def get_audio(self):
+        """Returns the filename of the stored audio clip."""
         assert self.has_audio(), "Couldn't get audio because the audio file didn't exist."
-        return self.audio_file
+        return self.audio_filename
     
     def clear(self):
-        """Deletes the 'audio_recording.wav' file."""
-        os.remove(self.audio_file)
+        """Removes existing file (if there is one) from the recorder's output path."""
+        self.recorder.listener = None
+        os.remove(self.get_path())
+        self.recorder.listener = self.recorder.create_listener()
 
 class SpeechRecognizer(MetaSpeechRecognizer):
 
-    def __init__(self, audio_file):
+    def __init__(self, audio_filename):
         self.recognizer = sr.Recognizer()
-        self.audio_file = audio_file
-        self.audio = self.recognizer.record(self.audio_file)
-        self.thread = Thread(target=recognize, args=(range(10), self, self.recognizer, self.audio), name="Recognizing audio")
-        self.thread.daemon = True
+        with sr.AudioFile(audio_filename) as source:
+            self.audio = self.recognizer.record(source)
+        self.thread = None
         self.thread_started = False
         self.message = ""
 
-    def start_recognizing_audio(self):
-        self.thread.start()
-        self.thread_started = True
-    
-    def recognize(ranger, self, recognizer, audio):
+    def recognize(self, ranger, recognizer, audio):
         try:
             self.message = recognizer.recognize_google(audio)  # recognize audio using google's free audio recognition model
         except sr.exceptions.UnknownValueError:
             self.message = 'Could not recognize user input'
-            print('Unknown Value, try again...')   
+            print('Unknown Value, try again...')  
 
-    def stop_recognizing_audio(self, audio):
+    def start_recognizing_audio(self):
+        self.thread = Thread(target=self.recognize, args=(range(10), self.recognizer, self.audio))
+        self.thread.daemon = True
+        self.thread.start()
+        self.thread_started = True 
+
+    def stop_recognizing_audio(self):
+        print("Recognizing.", end="")
         while self.is_recognizing():
             time.sleep(0.05)   
-        #TODO: Remove print-statement ones done testing
-        print("Recognizer stopped recognizing")
+            print(".", end="") #Print thinking dots every 0.05 seconds
+        print() #Add newline after thinking
     
     def get_message(self):
         return self.message
