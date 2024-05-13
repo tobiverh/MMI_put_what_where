@@ -16,15 +16,15 @@ class MetaSpeechRec(ABC):
 
     @abstractmethod
     def start_listening(self):
-        """Should set the speech recognizer in listening mode."""
+        """Sets the speech recognizer in listening mode."""
 
     @abstractmethod
     def stop_listening(self):
-        """Should make the speech recognizer stop listening."""
+        """Makes the speech recognizer stop listening."""
 
     @abstractmethod
     def get_message(self):
-        """Should return the recognized message."""
+        """Returns the recognized message."""
 
     @abstractmethod
     def is_listening(self):
@@ -47,11 +47,11 @@ class MetaRecorder(ABC):
 
     @abstractmethod
     def start_listening(self):
-        """Should set the audio recorder in listening mode."""
+        """Sets the audio recorder in listening mode."""
 
     @abstractmethod
     def stop_listening(self):
-        """Should make the audio recorder stop listening."""
+        """Makes the audio recorder stop listening."""
 
     @abstractmethod
     def is_listening(self):
@@ -59,7 +59,7 @@ class MetaRecorder(ABC):
         
     @abstractmethod
     def get_audio(self):
-        """Should return the recorded message."""
+        """Returns the recorded message."""
 
     @abstractmethod
     def has_audio(self):
@@ -122,15 +122,15 @@ class MetaEyeTracker(ABC):
     @abstractmethod
     def get_quadrant(self):
         """Returns the quadrant the user is looking at.\n
-        Either top-left, top-right, bottom-left or bottom-right."""
+        Return values are ints 0,1,2,3 corresponding to top-left, top-right, bottom-left and bottom-right respectively."""
 
     @abstractmethod
     def start_tracking(self):
-        """Should set the eye tracker in tracking mode."""
+        """Sets the eye tracker in tracking mode."""
 
     @abstractmethod
     def stop_tracking(self):
-        """Should make the eye tracker stop tracking."""
+        """Makes the eye tracker stop tracking."""
 
     @abstractmethod
     def is_tracking(self):
@@ -160,7 +160,7 @@ class MetaScreen(ABC):
     @abstractmethod
     def draw_object(self, shape, color):
         """Draws an object with the given shape and color.\n
-        The new object should be added to the screen's register of drawn objects,\n
+        The new object is added to the screen's register of drawn objects,\n
         so that it can be found by calling get_objects()."""
 
     @abstractmethod
@@ -170,7 +170,7 @@ class MetaScreen(ABC):
     @abstractmethod
     def highlight_quadrant(self, quadrant):
         """Highlights the given quadrant on the screen.
-        - quadrant should be a tuple (i,j), indicating the quadrant's coordinates"""
+        - quadrant is a tuple (i,j), indicating the quadrant's coordinates"""
 
     @abstractmethod
     def show(self):
