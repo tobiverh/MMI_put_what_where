@@ -5,7 +5,8 @@ from threading import Thread
 import pygame
 import time
 import sched
-from audio_recorder2 import AudioRecorder
+# from audio_recorder2 import AudioRecorder
+from audio_processing.audio_recorder2 import AudioRecorder
 
 
 def on_quit(event):
@@ -43,7 +44,7 @@ def recognize(ranger, recognizer, audio):
     :param ranger: unused iterable argument mandated by Thread module
     :param recognizer: Speech Recognition instance
     :param audio: The audio recorded from an audio file"""
-    global message, done
+    global message, done_recognizing
     # message: String where recognized audio is
     # done: bool set to True once the recognition algorithm has finished
     try:
@@ -51,7 +52,7 @@ def recognize(ranger, recognizer, audio):
     except sr.exceptions.UnknownValueError:
         message = 'Could not recognize user input'
         print('Unknown Value, try again...')
-    done = True  # Note end of recognition
+    done_recognizing = True  # Note end of recognition
 
 
 def init_screen(title='Hello'):
@@ -147,18 +148,18 @@ def run():
     screen = init_screen()
     text_font = init_font()
 
-    timing = is_listening = False
+    timing = is_recording = False
     start = np.inf
     a = True
 
     original_circle_pos = new_circle_pos = (1600, 250)
     draw_circles(screen, original_circle_pos, new_circle_pos)
     update()
-    flip = is_recognizing = False
+    item_is_selected = is_recognizing = False
 
     display_item_list = []
 
-    global done, running, my_recorder
+    global done_recognizing, running, my_recorder
 
     while running:
         for event in pygame.event.get():
@@ -172,14 +173,14 @@ def run():
                 display_item_list.append((blackout, screen))  # Clear screen
                 display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))
                 # update()
-                is_listening = True  # Set is_listening to True
-                listening_time = time.time()  # start timer for how long listening lasts
+                is_recording = True  # Set is_recording to True
+                recording_time = time.time()  # start timer for how long listening lasts
                 # recognizer.start_listening()
 
             # Handle space key being released!
             if event.type == pygame.KEYUP and pygame.key.name(event.key) == 'space':
                 my_recorder.listener.on_release()
-                is_listening = False  # Stop listening
+                is_recording = False  # Stop listening
                 is_recognizing = True  # Start recognizing
                 display_item_list.append((blackout, screen))  # Clear screen
                 display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))
@@ -211,41 +212,37 @@ def run():
                     recognition_thread.daemon = True
                     recognition_thread.start()
 
-            if done:  # indicates that the recognition_thread has finished
+            if done_recognizing:  # indicates that the recognition_thread has finished
                 time.sleep(0.1)
                 display_item_list.append((blackout, screen))  # Queue clear screen
                 display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))  # Queue circles
 
-                done = False  # Reset done bool
+                done_recognizing = False  # Reset done bool
                 is_recognizing = False
                 timing = True  # start message display timer
                 start = time.time()
 
                 if message == 'select':
                     pygame.mouse.set_pos(original_circle_pos)
-                    flip = True
+                    item_is_selected = True
                 elif message == 'release':
-                    flip = False
+                    item_is_selected = False
 
-            if flip:  # Object selected for movement
+            if item_is_selected:  # Object selected for movement
                 new_circle_pos = pygame.mouse.get_pos()  # Find mouse position to reposition circle
 
                 display_item_list.append((blackout, screen))  # Queue screen clearing
                 # Queue objects to display
-                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos, flip))
+                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos, item_is_selected))
 
             if is_recognizing:  # Check if recognizing audio, inform user if so
                 display_item_list.append((draw_text, screen, 'recognizing', text_font))
 
-            if flip and is_listening and not is_recognizing:  # Check if recording has started after object selection
-                listening_time = listening(display_item_list, listening_time, screen, text_font)
-                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos, flip))
+            if is_recording and not is_recognizing:  # Check if recording has started after object selection
+                recording_time = listening(display_item_list, recording_time, screen, text_font)
+                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos, item_is_selected))
 
-            if is_listening and not flip and not is_recognizing:  # Recording before object selection
-                listening_time = listening(display_item_list, listening_time, screen, text_font)
-                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))
-
-            if timing and not is_listening and not is_recognizing:  # If message display timer is active
+            if timing and not is_recording and not is_recognizing:  # If message display timer is active
                 if time.time() - start > 2:  # If longer than allotted time
                     timing = False  # Stop timing
                     display_item_list.append((blackout, screen))  # Clear screen
@@ -258,7 +255,7 @@ def run():
 
 if __name__ == '__main__':
     message = ''
-    done = False
+    done_recognizing = False
     running = True
     my_recorder = None
     # display_thread = Thread(target=run)

@@ -3,3 +3,4 @@ my_env/
 .idea/
 GazeTracking/gaze_tracking/__pycache__/
 __pycache__/
+main_folder/test.wav
