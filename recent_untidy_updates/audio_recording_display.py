@@ -5,8 +5,8 @@ from threading import Thread
 import pygame
 import time
 import sched
-from audio_recorder2 import AudioRecorder
-from gaze_quadrants import MyGazeTracker
+from audio_processing.audio_recorder2 import AudioRecorder
+from eye_tracking.implemented_eye_classes import PositionTracker
 
 
 def on_quit(event):
@@ -162,16 +162,38 @@ def run():
     start = np.inf
     a = True
 
-    positions = [[(0, screen.get_height()/2, screen.get_width()/2, screen.get_height()/2),  # left, down
-                  (0, 0, screen.get_width()/2, screen.get_height()/2)],  # left, up
-                 [(screen.get_width()/2, screen.get_height()/2, screen.get_width()/2, screen.get_height()/2),  # r, down
-                  (screen.get_width()/2, 0, screen.get_width()/2, screen.get_height()/2)]]  # right, up
+    # Return values are ints 0, 1, 2, 3 corresponding to top - left, top - right, bottom - left and bottom - right respectively
+    quadrant_rectangles = [(0, 0, screen.get_width()/2, screen.get_height()/2),  # left, up
+                           (screen.get_width() / 2, 0, screen.get_width() / 2, screen.get_height() / 2),  # right, up
+                           (0, screen.get_height()/2, screen.get_width()/2, screen.get_height()/2),  # left, down
+                           (screen.get_width()/2, screen.get_height()/2, screen.get_width()/2, screen.get_height()/2)
+                           ]  # 0: left, up, 1: right, up, 2: left, down, 3: right, down
 
+    sub_quadrant_rectangles = []
+    for left, top, width, height in quadrant_rectangles:
+        tmp = []
+        tl = (left, top, width/2, height/2)
+        tr = (left + width/2, top, width/2, height/2)
+        bl = (left, top + height/2, width/2, height/2)
+        br = (left + width/2, top + height/2, width/2, height/2)
+        tmp.extend((tl, tr, bl, br))
+        sub_quadrant_rectangles.append(tmp)
+
+    print(quadrant_rectangles)
+    print(sub_quadrant_rectangles)
+
+    pygame.draw.rect(screen, (50, 50, 50), quadrant_rectangles[0])
+    pygame.draw.rect(screen, (50, 50, 50), quadrant_rectangles[3])
+    pygame.draw.rect(screen, (100, 100, 100), quadrant_rectangles[1])
+    pygame.draw.rect(screen, (100, 100, 100), quadrant_rectangles[2])
+    update()
+    # time.sleep(5)
+    # return
     # print(positions[right][up])
     # return
 
     original_circle_pos = new_circle_pos = (1600, 250)
-    draw_circles(screen, original_circle_pos, new_circle_pos)
+    # draw_circles(screen, original_circle_pos, new_circle_pos)
     update()
     flip = is_recognizing = False
 
@@ -181,14 +203,23 @@ def run():
 
     while running:
         for event in pygame.event.get():
+            time.sleep(2)
+            for quad in sub_quadrant_rectangles:
+                for sub_quad in quad:
+                    pygame.draw.rect(screen, color=(100, 50, 50), rect=sub_quad)
+                    update()
+                    time.sleep(2)
+            return
+
             on_quit(event)  # Check if event = quit to exit program
 
             # Handle space key being pressed down!
             if event.type == pygame.KEYDOWN and pygame.key.name(event.key) == 'space':
                 my_recorder = AudioRecorder('test.wav')
                 init_recorder(my_recorder)
-                my_tracker = MyGazeTracker()
-                tracking_thread = gazing(my_tracker)
+                # my_tracker = PositionTracker()
+                # tracking_thread = gazing(my_tracker)
+                my_tracker.start_tracking()
                 my_recorder.listener.on_press()
                 display_item_list.append((blackout, screen))  # Clear screen
                 display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))
@@ -234,8 +265,10 @@ def run():
 
             if done:  # indicates that the recognition_thread has finished
                 time.sleep(0.1)
-                if tracking_thread.is_alive():
+                if my_tracker.is_tracking():
                     my_tracker.stop_tracking()
+                # if tracking_thread.is_alive():
+                #     my_tracker.stop_tracking()
                 display_item_list.append((blackout, screen))  # Queue clear screen
                 display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))  # Queue circles
 
@@ -258,21 +291,17 @@ def run():
                 display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos, flip))
 
             if is_recognizing:  # Check if recognizing audio, inform user if so
-                right, up = my_tracker.get_gaze()
-                display_item_list.append((pygame.draw.rect, screen, (50, 50, 50), positions[right][up]))
+                # right, up = my_tracker.get_gaze()
+                quadrant = my_tracker.get_quadrant()
+                display_item_list.append((pygame.draw.rect, screen, (50, 50, 50), positions[quadrant]))
                 display_item_list.append((draw_text, screen, 'recognizing', text_font))
 
-            if flip and is_listening and not is_recognizing:  # Check if recording has started after object selection
-                right, up = my_tracker.get_gaze()
-                display_item_list.append((pygame.draw.rect, screen, (50, 50, 50), positions[right][up]))
+            if is_listening and not is_recognizing:  # Check if recording has started after object selection
+                # right, up = my_tracker.get_gaze()
+                quadrant = my_tracker.get_quadrant()
+                display_item_list.append((pygame.draw.rect, screen, (50, 50, 50), positions[quadrant]))
                 listening_time = listening(display_item_list, listening_time, screen, text_font)
                 display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos, flip))
-
-            if is_listening and not flip and not is_recognizing:  # Recording before object selection
-                right, up = my_tracker.get_gaze()
-                display_item_list.append((pygame.draw.rect, screen, (50, 50, 50), positions[right][up]))
-                listening_time = listening(display_item_list, listening_time, screen, text_font)
-                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))
 
             if timing and not is_listening and not is_recognizing:  # If message display timer is active
                 if time.time() - start > 2:  # If longer than allotted time
@@ -290,7 +319,7 @@ if __name__ == '__main__':
     done = False
     running = True
     my_recorder = None
-    my_tracker = None
+    my_tracker = PositionTracker()
     # display_thread = Thread(target=run)
     # display_thread.daemon = True
     # display_thread.start()
