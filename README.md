@@ -1,6 +1,6 @@
 # Install project
 To install the project, follow these instructions:
-1. Clone this repository to your computer. 
+1. Clone this repository to your computer (or pull, if you already have cloned the project) 
 1. Open a terminal
 2. Navigate your directory to `.../MMI_put_what_where`
 3. Run `pip install -e .`
