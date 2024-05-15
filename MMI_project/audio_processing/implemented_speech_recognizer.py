@@ -6,9 +6,13 @@ from threading import Thread
 
 class SpeechRecognizer(MetaSpeechRecognizer):
 
-    def __init__(self, audio_filename):
+    def __init__(self, audio_file_path):
+        """
+        Initializes the SpeechRecognizer, and the thread it will be working on.
+        - `audio_file_path`: The path to the input audio file, from which to recognize speech. 
+        """
         self.recognizer = sr.Recognizer()
-        with sr.AudioFile(audio_filename) as source:
+        with sr.AudioFile(audio_file_path) as source:
             self.audio = self.recognizer.record(source)
         self.thread = None
         self.thread_started = False
