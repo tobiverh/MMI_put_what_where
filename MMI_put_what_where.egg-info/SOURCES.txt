@@ -25,4 +25,5 @@ MMI_project/testing_folder/track_test.py
 MMI_put_what_where.egg-info/PKG-INFO
 MMI_put_what_where.egg-info/SOURCES.txt
 MMI_put_what_where.egg-info/dependency_links.txt
+MMI_put_what_where.egg-info/requires.txt
 MMI_put_what_where.egg-info/top_level.txt
