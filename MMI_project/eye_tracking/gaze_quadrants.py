@@ -6,7 +6,7 @@ https://github.com/antoinelame/GazeTracking
 from threading import Thread
 
 import cv2
-from GazeTracking.gaze_tracking import GazeTracking
+from MMI_project.eye_tracking.GazeTracking.gaze_tracking import GazeTracking
 import time
 
 

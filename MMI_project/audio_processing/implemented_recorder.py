@@ -1,6 +1,6 @@
-from audio_processing.audio_meta_classes import MetaRecorder
-from audio_recorder2 import AudioRecorder
-from main_folder.audio_recording_display import init_recorder, recognize
+from MMI_project.audio_processing.audio_meta_classes import MetaRecorder
+from MMI_project.audio_processing.audio_recorder2 import AudioRecorder
+from MMI_project.main_folder.audio_recording_display import init_recorder, recognize
 import time
 import os
 

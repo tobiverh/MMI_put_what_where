@@ -1,4 +1,5 @@
-from implemented_classes import Recorder, SpeechRecognizer
+from MMI_project.audio_processing.implemented_recorder import Recorder
+from MMI_project.audio_processing.implemented_speech_recognizer import SpeechRecognizer
 import pygame
 
 pygame.init()

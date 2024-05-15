@@ -7,7 +7,7 @@ import pyaudio
 import sched
 import sys
 # from MyListener import MyListener
-from audio_processing.wav_handler import WavHandler
+from MMI_project.audio_processing.wav_handler import WavHandler
 
 
 class AudioRecorder:

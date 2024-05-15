@@ -1,0 +1,5 @@
+Metadata-Version: 2.1
+Name: MMI_put_what_where
+Version: 0.1.0
+Author: Mathias Øgaard, Tobias Verheijen
+Requires-Python: >=3.11

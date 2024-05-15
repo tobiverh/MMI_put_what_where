@@ -1,4 +1,4 @@
-from audio_processing.audio_meta_classes import MetaSpeechRecognizer
+from MMI_project.audio_processing.audio_meta_classes import MetaSpeechRecognizer
 import speech_recognition as sr
 import time
 from threading import Thread

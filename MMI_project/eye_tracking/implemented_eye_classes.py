@@ -1,4 +1,4 @@
-from eye_tracking.eye_meta_classes import MetaEyeTracker
+from MMI_project.eye_tracking.eye_meta_classes import MetaEyeTracker
 
 
 class PositionTracker(MetaEyeTracker):
