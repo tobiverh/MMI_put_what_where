@@ -24,7 +24,7 @@ while recording:
 
         pygame.display.update()
 
-recognizer = SpeechRecognizer(audio_filename=recorder.audio_filename)
+recognizer = SpeechRecognizer(audio_filename=recorder.audio_file_path)
 recognizer.start_recognizing_audio()
 
 recognizer.stop_recognizing_audio()

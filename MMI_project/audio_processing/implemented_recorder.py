@@ -8,12 +8,16 @@ from threading import Thread
 
 class Recorder(MetaRecorder):
     def __init__(self, audio_filename):
+        """
+        Initializes the recorder, and the thread it will be working in.\n
+        - `audio_filename`: Name of output-file. Should include suffix `.wav`. The output file will be written to the project's `audio_files` folder.
+        """
         # Define path of output audio file
         path = os.path.dirname(os.path.abspath(__file__))
         path = os.path.abspath(os.path.join(path, os.pardir, 'audio_files', audio_filename))
-        self.audio_filename = path
+        self.audio_file_path = path
         # Initialize recorder
-        self.recorder = AudioRecorder(filename=self.audio_filename)
+        self.recorder = AudioRecorder(filename=self.audio_file_path)
         # Initialize thread to process recording 
         task = sched.scheduler(time.time, time.sleep) # Start scheduler
         self.recorder.set_task(task)
@@ -35,17 +39,17 @@ class Recorder(MetaRecorder):
         return self.recorder.is_started
 
     def has_audio(self):
-        return os.path.exists(self.audio_filename)
+        return os.path.exists(self.audio_file_path)
 
     def get_audio(self):
         """Returns the filename of the stored audio clip."""
         assert self.has_audio(), "Couldn't get audio because the audio file didn't exist."
-        return self.audio_filename
+        return self.audio_file_path
 
     def clear(self):
         """Removes existing file (if there is one) from the recorder's output path."""
         self.recorder.listener = None
-        os.remove(self.audio_filename)
+        os.remove(self.audio_file_path)
         self.recorder.listener = self.recorder.create_listener()
 
 
