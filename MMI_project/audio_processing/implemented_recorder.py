@@ -1,8 +1,9 @@
 from MMI_project.audio_processing.audio_meta_classes import MetaRecorder
 from MMI_project.audio_processing.audio_recorder2 import AudioRecorder
-from MMI_project.main_folder.audio_recording_display import init_recorder, recognize
 import time
 import os
+import sched
+from threading import Thread
 
 
 class Recorder(MetaRecorder):
@@ -13,15 +14,22 @@ class Recorder(MetaRecorder):
         self.audio_filename = path
         # Initialize recorder
         self.recorder = AudioRecorder(filename=self.audio_filename)
+        # Initialize thread to process recording 
+        task = sched.scheduler(time.time, time.sleep) # Start scheduler
+        self.recorder.set_task(task)
+        task.enter(0.1, 1, self.recorder.recorder,  # Enter the given task
+                   (self.recorder.is_started, self.recorder.p_thang, self.recorder.stream_in, self.recorder.frame_list))
+        self.thread = Thread(target=task.run, args=())
+        self.thread.daemon = True
 
     def start_listening(self):
-        init_recorder(self.recorder)
+        self.thread.start()
         self.recorder.listener.on_press()
 
     def stop_listening(self):
         self.recorder.listener.on_release()
         while self.is_listening() or not self.has_audio():
-            time.sleep(0.05)
+            time.sleep(0.05)    # Waiting for recording to finish
 
     def is_listening(self):
         return self.recorder.is_started
