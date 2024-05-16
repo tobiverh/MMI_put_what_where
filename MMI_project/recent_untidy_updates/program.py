@@ -1,15 +1,8 @@
-# from speech_listener import MyRecognizer
 import numpy as np
-import speech_recognition as sr
-from threading import Thread
 import pygame
 import time
-import sched
-# from audio_recorder2 import AudioRecorder
-from MMI_project.audio_processing.audio_recorder2 import AudioRecorder
 from MMI_project.audio_processing.implemented_recorder import Recorder
 from MMI_project.audio_processing.implemented_speech_recognizer import  SpeechRecognizer
-
 
 def on_quit(event):
     """Handles pygame's quit event (e.g. ctrl-q
@@ -30,7 +23,6 @@ def draw_text(screen, text, font):
     col = (255, 0, 0)  # Red color for text
     img = font.render(text, True, col)  # creates a small sub-image with the provided text and color
     screen.blit(img, (screen.get_width()/2, screen.get_height() - 30))  # Adds the text in position 800, 800
-    # pygame.display.update()  # flips the display to show text on screen
 
 
 def blackout(screen):
@@ -38,24 +30,6 @@ def blackout(screen):
     :param screen: the screen which is repainted"""
     screen.fill((0, 0, 0))  # Fills the screen with black
     pygame.draw.rect(screen, color=(100, 100, 100), rect=(0, screen.get_height() - 30, screen.get_width(), 30))
-    # pygame.display.update()  # flips the display
-
-
-# def recognize(ranger, recognizer, audio):
-#     """Threaded function recognizes passed in audio and stores message in global variable 'message'
-#     :param ranger: unused iterable argument mandated by Thread module
-#     :param recognizer: Speech Recognition instance
-#     :param audio: The audio recorded from an audio file"""
-#     global message, done_recognizing
-#     # message: String where recognized audio is
-#     # done: bool set to True once the recognition algorithm has finished
-#     try:
-#         message = recognizer.recognize_google(audio)  # recognize audio using google's free audio recognition model
-#     except sr.exceptions.UnknownValueError:
-#         message = 'Could not recognize user input'
-#         print('Unknown Value, try again...')
-#     done_recognizing = True  # Note end of recognition
-
 
 def init_screen(title='Hello'):
     """Initializes the display screen of maximum size to all black with given title text
@@ -78,20 +52,6 @@ def init_font(font_name='Arial', size=24):
     pygame.font.init()  # Initialize font
     text_font = pygame.font.SysFont(font_name, size=size)  # Get system font of font_name and size
     return text_font
-
-
-def init_recorder(recorder):
-    task = sched.scheduler(time.time, time.sleep)  # Start scheduler
-    recorder.set_task(task)
-    print('Press and hold the "space" key to begin recording')
-    print('Release the "space" key to end recording')
-    task.enter(0.1, 1, recorder.recorder,  # Enter the given task
-               (recorder.is_started, recorder.p_thang, recorder.stream_in, recorder.frame_list))
-    task_thread = Thread(target=task.run, args=())
-    task_thread.daemon = True
-    task_thread.start()
-    # task.run()  # Run thread
-
 
 def draw_circles(screen, original_circle_pos, new_circle_pos, flip=False):
     if flip:
@@ -160,7 +120,7 @@ def run():
 
     display_item_list = []
 
-    global running, my_recorder
+    global running
 
     while running:
         for event in pygame.event.get():
@@ -192,10 +152,10 @@ def run():
                 timing = True  
                 start = time.time()
 
-                if message == 'select':
+                if imp_recognizer.get_message() == 'select':
                     pygame.mouse.set_pos(original_circle_pos)
                     item_is_selected = True
-                elif message == 'release':
+                elif imp_recognizer.get_message() == 'release':
                     item_is_selected = False
 
             if item_is_selected:  # Object selected for movement
@@ -221,13 +181,11 @@ def run():
                     display_item_list.append((blackout, screen))  # Clear screen
                     display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))
                 else:
-                    display_item_list.append((draw_text, screen, message, text_font))  # Queue recognized message
+                    display_item_list.append((draw_text, screen, imp_recognizer.get_message(), text_font))  # Queue recognized message
 
             display_item_list = dequeue(display_item_list)  # If information to be displayed, update display
 
 
 if __name__ == '__main__':
-    message = ''
     running = True
-    my_recorder = None
     run()
