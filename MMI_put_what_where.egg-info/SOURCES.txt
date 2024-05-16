@@ -1,3 +1,4 @@
+README.md
 pyproject.toml
 MMI_project/audio_processing/audio_meta_classes.py
 MMI_project/audio_processing/audio_recorder2.py
@@ -17,6 +18,7 @@ MMI_project/install_maybe/setup.py
 MMI_project/main_folder/audio_recording_display.py
 MMI_project/main_folder/main.py
 MMI_project/recent_untidy_updates/audio_recording_display.py
+MMI_project/recent_untidy_updates/program.py
 MMI_project/recent_untidy_updates/quadrant_generation.py
 MMI_project/screen/screen_meta_classes.py
 MMI_project/testing_folder/test_implented_classes.py
