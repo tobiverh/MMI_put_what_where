@@ -12,8 +12,8 @@ class SpeechRecognizer(MetaSpeechRecognizer):
         - `audio_file_path`: The path to the input audio file, from which to recognize speech. 
         """
         self.recognizer = sr.Recognizer()
-        with sr.AudioFile(audio_file_path) as source:
-            self.audio = self.recognizer.record(source)
+        self.audio_file_path = audio_file_path
+        self.audio = None
         self.thread = None
         self.thread_started = False
         self.message = ""
@@ -27,6 +27,8 @@ class SpeechRecognizer(MetaSpeechRecognizer):
             print('Unknown Value, try again...')
 
     def start_recognizing_audio(self):
+        with sr.AudioFile(self.audio_file_path) as source:
+            self.audio = self.recognizer.record(source)
         self.thread = Thread(target=self.recognize, args=(range(10), self.recognizer, self.audio))
         self.thread.daemon = True
         self.thread.start()
@@ -43,7 +45,13 @@ class SpeechRecognizer(MetaSpeechRecognizer):
         return self.message
 
     def is_recognizing(self):
-        return self.thread.is_alive()
+        if self.thread_started:
+            return self.thread.is_alive() # True if thread was started AND is still alive
+        else:
+            return False    # Thread was never started
 
     def has_recognized_message(self):
-        return self.thread_started and not self.thread.is_alive()
+        if self.thread_started:
+            return not self.thread.is_alive() # True is thread was started AND terminated
+        else:
+            return False    # Thread was never started
