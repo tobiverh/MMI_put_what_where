@@ -19,14 +19,15 @@ class Recorder(MetaRecorder):
         # Initialize recorder
         self.recorder = AudioRecorder(filename=self.audio_file_path)
         # Initialize thread to process recording 
-        task = sched.scheduler(time.time, time.sleep) # Start scheduler
-        self.recorder.set_task(task)
-        task.enter(0.1, 1, self.recorder.recorder,  # Enter the given task
+        self.task = sched.scheduler(time.time, time.sleep) # Start scheduler
+        self.recorder.set_task(self.task)
+        self.task.enter(0.1, 1, self.recorder.recorder,  # Enter the given task
                    (self.recorder.is_started, self.recorder.p_thang, self.recorder.stream_in, self.recorder.frame_list))
-        self.thread = Thread(target=task.run, args=())
-        self.thread.daemon = True
+        self.thread = None
 
-    def start_listening(self):
+    def start_listening(self):        
+        self.thread = Thread(target=self.task.run, args=())
+        self.thread.daemon = True
         self.thread.start()
         self.recorder.listener.on_press()
 
