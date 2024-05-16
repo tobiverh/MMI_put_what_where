@@ -9,8 +9,6 @@ def on_quit(event):
     """Handles pygame's quit event (e.g. ctrl-q
     :param event: The pygame event from the main loop"""
     if event.type == pygame.QUIT:
-        global running
-        running = False  # Stop main loop from running (no more updates)
         pygame.display.quit()  # Quit the display
         pygame.quit()  # Quit pygame
         exit(0)  # Exit program
@@ -54,7 +52,7 @@ def init_font(font_name='Arial', size=24):
     text_font = pygame.font.SysFont(font_name, size=size)  # Get system font of font_name and size
     return text_font
 
-def draw_circles(screen, original_circle_pos, new_circle_pos, flip=False):
+def draw_circles(screen: pygame.Surface, original_circle_pos, new_circle_pos, flip=False):
     if flip:
         pygame.draw.circle(screen, (0, 0, 255), original_circle_pos, 75)
         pygame.draw.circle(screen, (255, 0, 0), new_circle_pos, 75)
@@ -67,7 +65,7 @@ def update():
     pygame.display.update()
 
 
-def display_thinking(disp_list, process_str, start_time, screen, text_font):
+def display_thinking(process_str, start_time, screen, text_font):
     """
     Takes a `process_str`, describing what the program is doing.\n
     The `process_str` is displayed on the `screen` followed by thinking dots, 
@@ -76,53 +74,27 @@ def display_thinking(disp_list, process_str, start_time, screen, text_font):
     \n
     Returns `start_time`.
     """
-    total_thinking_time = (time.time() - start_time)  # Get time since listening started
-    n_dots = math.floor(total_thinking_time / 0.5) % 5
-    disp_list.append((blackout, screen))  # clear screen
-    disp_list.append((draw_text, screen, process_str + '.' * n_dots, text_font))
-    #TODO: Remove when testing is done
-    if(process_str == "Processing audio"):
-        print(f"Has been {process_str} for {total_thinking_time}. So we display {n_dots} dots.")
+    thinking_time = (time.time() - start_time)  # Get time since listening started
+    n_dots = math.floor(thinking_time / 0.5) % 5
+    (blackout, screen)  # clear screen
+    (draw_text, screen, process_str + '.' * n_dots, text_font)
     return start_time
 
-
-def dequeue(disp_list):
-    if disp_list:
-        for i in range(len(disp_list)):
-            try:
-                func, *args = disp_list[i]
-            except TypeError:
-                continue
-            func(*args)
-
-        disp_list = []
-        update()
-
-    return disp_list
-
-
 def run():
-    # KEYWORDS = [("select", 1), ("release", 1)]
     imp_recorder = Recorder('main_program.wav')                           
-    # imp_recognizer = SpeechRecognizer(imp_recorder.audio_file_path, keywords=KEYWORDS)
     imp_recognizer = SpeechRecognizer(imp_recorder.audio_file_path)
 
     screen = init_screen()
     text_font = init_font()
 
-    timing = False
-    start = np.inf
-
-    original_circle_pos = new_circle_pos = (1600, 250)
-    draw_circles(screen, original_circle_pos, new_circle_pos)
+    old_item_pos = new_item_pos = (screen.get_width()/2, screen.get_height()/2)
+    draw_circles(screen, old_item_pos, new_item_pos)
     update()
 
     item_is_selected = False
-    display_item_list = []
+    message = ""
 
-    global running
-
-    while running:
+    while True:
         for event in pygame.event.get():
             on_quit(event)  # Check if event = quit to exit program
 
@@ -130,65 +102,36 @@ def run():
             if event.type == pygame.KEYDOWN and pygame.key.name(event.key) == 'space':
                 imp_recorder.start_listening()
                 listened_since = time.time()  # start timer for how long listening lasts
-                display_item_list.append((blackout, screen))  # Clear screen
-                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))
 
             # Handle space key being released!
             elif event.type == pygame.KEYUP and pygame.key.name(event.key) == 'space':
                 imp_recorder.stop_listening()
-                
-                display_item_list.append((blackout, screen))  # Clear screen
-                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))
-                
                 imp_recognizer.start_recognizing_audio()
-                # recognized_since = time.time() # Start timer on recognizing
                 imp_recognizer.stop_recognizing_audio()
 
             # Handle recognized speech command
             if imp_recognizer.has_recognized_message():
-                # time.sleep(0.1)
-                display_item_list.append((blackout, screen))  # Queue clear screen
-                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))  # Queue circles
-
-                # start message display timer
-                timing = True  
-                start = time.time()
-
-                if imp_recognizer.get_message() == 'select':
-                    pygame.mouse.set_pos(original_circle_pos)
+                message = imp_recognizer.get_message()
+                if message == 'select':
+                    pygame.mouse.set_pos(old_item_pos)
                     item_is_selected = True
-                elif imp_recognizer.get_message() == 'release':
+                elif message == 'release':
                     item_is_selected = False
 
             # Handle movement of selected object
             if item_is_selected:  # Object selected for movement
-                new_circle_pos = pygame.mouse.get_pos()  # Find mouse position to reposition circle
-
-                display_item_list.append((blackout, screen))  # Queue screen clearing
-                # Queue objects to display
-                display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos, item_is_selected))
+                new_item_pos = pygame.mouse.get_pos()  # Find mouse position to reposition circle
+                draw_circles(screen, old_item_pos, new_item_pos, item_is_selected)
 
             # Display to user what the program is doing.
-            # if imp_recognizer.is_recognizing():
-                # display_thinking(display_item_list, 'Processing audio', recognized_since, screen, text_font)
-                # #TODO: Remove after testing
-                # print(f"Time since recognizing started: {time.time() - recognized_since}")
             if imp_recorder.is_listening(): 
-                display_thinking(display_item_list, 'Listening', listened_since, screen, text_font)
+                display_thinking('Listening', listened_since, screen, text_font)
+            else:
+                draw_text(screen, message, text_font)
             
-            # If message display timer is active
-            elif timing:
-                if time.time() - start > 2:  # If longer than allotted time
-                    timing = False  # Stop timing
-                    display_item_list.append((blackout, screen))  # Clear screen
-                    display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))
-                else:
-                    display_item_list.append((draw_text, screen, imp_recognizer.get_message(), text_font))  # Queue recognized message
-
-            display_item_list = dequeue(display_item_list)  # If information to be displayed, update display
-            
-
+            #Reset screen
+            blackout(screen) #TODO: This should be specific for text and image, and be integrated into draw_text and draw_circles
+            update()
 
 if __name__ == '__main__':
-    running = True
     run()
