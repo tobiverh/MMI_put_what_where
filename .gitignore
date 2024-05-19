@@ -4,3 +4,4 @@ my_env/
 GazeTracking/gaze_tracking/__pycache__/
 __pycache__/
 main_folder/test.wav
+MMI_project/audio_files/main_program.wav

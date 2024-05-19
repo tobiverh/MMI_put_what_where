@@ -39,20 +39,7 @@ def blackout(screen):
     # pygame.display.update()  # flips the display
 
 
-def recognize(ranger, recognizer, audio):
-    """Threaded function recognizes passed in audio and stores message in global variable 'message'
-    :param ranger: unused iterable argument mandated by Thread module
-    :param recognizer: Speech Recognition instance
-    :param audio: The audio recorded from an audio file"""
-    global message, done
-    # message: String where recognized audio is
-    # done: bool set to True once the recognition algorithm has finished
-    try:
-        message = recognizer.recognize_google(audio)  # recognize audio using google's free audio recognition model
-    except sr.exceptions.UnknownValueError:
-        message = 'Could not recognize user input'
-        print('Unknown Value, try again...')
-    done = True  # Note end of recognition
+
 
 
 def init_screen(title='Hello'):

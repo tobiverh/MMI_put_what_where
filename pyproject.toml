@@ -6,6 +6,7 @@ dependencies = [
     "numpy",
     "pygame",
     "pyaudio",
+    "SpeechRecognition",
     "dlib"
 ]
 requires-python = ">=3.10"
