@@ -25,7 +25,7 @@ class Recorder(MetaRecorder):
                    (self.recorder.is_started, self.recorder.p_thang, self.recorder.stream_in, self.recorder.frame_list))
         self.thread = None
 
-    def start_listening(self):        
+    def start_listening(self):  
         self.thread = Thread(target=self.task.run, args=())
         self.thread.daemon = True
         self.thread.start()
@@ -35,9 +35,13 @@ class Recorder(MetaRecorder):
         self.recorder.listener.on_release()
         while self.is_listening() or not self.has_audio():
             time.sleep(0.05)    # Waiting for recording to finish
+        print("Recorder is done listening.") #TODO: Remove
 
     def is_listening(self):
-        return self.recorder.is_started
+        if self.recorder.is_started:
+            return self.thread.is_alive() # True if recorder was started AND thread is still alive
+        else:
+            return False    # Recorder was never started
 
     def has_audio(self):
         return os.path.exists(self.audio_file_path)
@@ -47,19 +51,21 @@ class Recorder(MetaRecorder):
         assert self.has_audio(), "Couldn't get audio because the audio file didn't exist."
         return self.audio_file_path
 
-    def clear(self):
-        """Removes existing file (if there is one) from the recorder's output path."""
-        self.recorder.listener = None
-        os.remove(self.audio_file_path)
-        self.recorder.listener = self.recorder.create_listener()
+    # def clear(self):
+    #     """Removes existing file (if there is one) from the recorder's output path."""
+    #     self.recorder.listener = None   # Can't remove file while the listener is writing to it
+    #     os.remove(self.audio_file_path)
+    #     self.recorder.listener = self.recorder.create_listener() # Create new listener
 
+def test():
+    path = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.abspath(os.path.join(path, os.pardir, 'audio_files', 'recorder_test.wav'))
+    print(f"""
+    This should be the path of the recorder's output file:
+    --------------------
+    {path}
+    --------------------
+    """)
 
-#TODO: Remove when done testing:
-path = os.path.dirname(os.path.abspath(__file__))
-path = os.path.abspath(os.path.join(path, os.pardir, 'audio_files', 'output.wav'))
-print(f"""
-This should be the path of the recorder's output file:
---------------------
-{path}
---------------------
-""")
+if __name__ == "__main__":
+    test()
