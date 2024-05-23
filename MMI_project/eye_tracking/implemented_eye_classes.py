@@ -62,8 +62,6 @@ class EyeTracker(MetaEyeTracker):
             self.quadrant = 2
         elif down and right:
             self.quadrant = 3
-        else:
-            print("It should be impossible to get here.")
 
 def test():
     print("Tracking eyes...")
@@ -79,4 +77,5 @@ def test():
 
     tracker.stop_tracking()
 
-test()
+if __name__ == "__main__":
+    test()
