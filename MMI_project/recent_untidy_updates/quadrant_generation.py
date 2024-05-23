@@ -1,3 +1,4 @@
+import os
 from threading import Thread
 
 import pygame
@@ -33,8 +34,8 @@ def init_screen(title='Hello'):
     :return screen: the pygame display screen"""
     pygame.init()  # Initialize pygame
     display_size = list(pygame.display.get_desktop_sizes()[0])  # Get max screen size
-    display_size[1] -= 55  # Adjust to ensure window fits in screen
-    screen = pygame.display.set_mode(display_size)  # Create max allowable size screen
+    display_size[1] -= 80  # Adjust to ensure window fits in screen
+    screen = pygame.display.set_mode(display_size, pygame.RESIZABLE)  # Create max allowable size screen
     pygame.display.set_caption(title)  # Set caption
     blackout(screen)  # Make screen black
     pygame.display.update()  # flips the display
@@ -184,7 +185,9 @@ def run():
             # The OLD VERSION of the Audio recognizer.
             if event.type == pygame.KEYDOWN and pygame.key.name(event.key) == 's':
                 gazer.start_tracking()
-                with sr.AudioFile('../audio_files/select.wav') as source:
+                path = os.path.dirname(os.path.abspath(__file__))
+                path = os.path.abspath(os.path.join(path, os.pardir, 'audio_files', 'select.wav'))
+                with sr.AudioFile(path) as source:
                     audio = recognizer.record(source)
                     recognition_thread = Thread(target=recognize, args=(range(10), recognizer, audio))
                     recognition_thread.daemon = True
@@ -194,7 +197,9 @@ def run():
             # to the OLD VERSION of the Audio recognizer.
             if event.type == pygame.KEYDOWN and pygame.key.name(event.key) == 'r':
                 gazer.start_tracking()
-                with sr.AudioFile('../audio_files/release.wav') as source:
+                path = os.path.dirname(os.path.abspath(__file__))
+                path = os.path.abspath(os.path.join(path, os.pardir, 'audio_files', 'release.wav'))
+                with sr.AudioFile(path) as source:
                     audio = recognizer.record(source)
                     recognizer.adjust_for_ambient_noise(source)
                     recognition_thread = Thread(target=recognize, args=(range(10), recognizer, audio))
