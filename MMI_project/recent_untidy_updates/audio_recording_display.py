@@ -6,7 +6,7 @@ import pygame
 import time
 import sched
 from MMI_project.audio_processing.audio_recorder2 import AudioRecorder
-from MMI_project.eye_tracking.implemented_eye_classes import PositionTracker
+from MMI_project.eye_tracking.implemented_eye_classes import EyeTracker
 
 
 def on_quit(event):
@@ -306,7 +306,7 @@ if __name__ == '__main__':
     done = False
     running = True
     my_recorder = None
-    my_tracker = PositionTracker()
+    my_tracker = EyeTracker()
     # display_thread = Thread(target=run)
     # display_thread.daemon = True
     # display_thread.start()
