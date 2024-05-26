@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     # Add labels and title
     plt.ylabel('Time (s)')
-    plt.title('Box Plot of Timing Information with Mean and Standard Deviation')
+    plt.title(f'Box Plot of One Word Speech Recognition Timing\n {len(time_df)} samples')
 
     # Show the plot
     plt.show()
