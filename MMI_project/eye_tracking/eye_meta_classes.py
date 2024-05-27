@@ -15,10 +15,6 @@ class MetaEyeTracker(ABC):
         """Initializes the eye tracker."""
 
     @abstractmethod
-    def calibrate(self):
-        """Calibrates the eye tracker."""
-
-    @abstractmethod
     def get_quadrant(self):
         """Returns the quadrant the user is looking at.\n
         Return values are ints 0,1,2,3 corresponding to top-left, top-right, bottom-left and bottom-right respectively."""
