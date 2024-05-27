@@ -42,7 +42,7 @@ def init_screen(title='Hello'):
     blackout(screen)  # Make screen black
     pygame.display.update()  # flips the display
     return screen
-
+          
 
 def init_font(font_name='Arial', size=24):
     """Initializes the default font to be used for relaying messages back to the user
@@ -117,6 +117,7 @@ def run():
                     item_is_selected = True
                 elif message == 'release':
                     item_is_selected = False
+                else: draw_text(screen, f"Didn't understand command: {message}", text_font)
 
             # Handle movement of selected object
             if item_is_selected:  # Object selected for movement
