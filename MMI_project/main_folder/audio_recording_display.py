@@ -206,13 +206,16 @@ def run():
                 #         message = recognizer.recognize_google(audio)
                 while my_recorder.is_started:
                     time.sleep(0.05)
+                started = time.time()
                 with sr.AudioFile('test.wav') as source:
+                    recognizer.adjust_for_ambient_noise(source)
                     audio = recognizer.record(source)
                     recognition_thread = Thread(target=recognize, args=(range(10), recognizer, audio))
                     recognition_thread.daemon = True
                     recognition_thread.start()
 
             if done_recognizing:  # indicates that the recognition_thread has finished
+                print(f'time elapsed: {time.time() - started}')
                 time.sleep(0.1)
                 display_item_list.append((blackout, screen))  # Queue clear screen
                 display_item_list.append((draw_circles, screen, original_circle_pos, new_circle_pos))  # Queue circles
