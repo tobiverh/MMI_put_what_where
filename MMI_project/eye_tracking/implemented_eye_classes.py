@@ -1,3 +1,4 @@
+from threading import Thread
 import time
 import cv2
 from MMI_project.eye_tracking.GazeTracking.gaze_tracking.gaze_tracking import GazeTracking
@@ -5,32 +6,42 @@ from MMI_project.eye_tracking.eye_meta_classes import MetaEyeTracker
 
 
 class EyeTracker(MetaEyeTracker):
-
     def __init__(self):
-        self.gaze = None
-        self.webcam = None
-        self.is_started = False
+        self.gaze = GazeTracking()
+        self.webcam = cv2.VideoCapture(0)
+        self.thread_started = False
         self.quadrant = None
-
-    def calibrate(self):
-        return super().calibrate()
+        self.thread = None
+        self.thread_started = False
     
     def get_quadrant(self):
-        self.face2quadrant_update()
         return self.quadrant if self.quadrant in range(4) else -1
 
     def start_tracking(self):
-        self.gaze = GazeTracking()
-        self.webcam = cv2.VideoCapture(0)
-        self.is_started = True
+        """
+        Starts the job of tracking eye gaze, as a quadrant-value from 0 to 3.
+        """
+        self.thread = Thread(target=self.face2quadrant_update)
+        self.thread.daemon = True
+        self.thread_started = True
+        self.thread.start()
 
-    def stop_tracking(self):
-        self.is_started = False
+    def stop_tracking(self, freq = 0.01):
+        """
+        Waits for EyeTracker to finish the job of tracking user's eye gaze.
+        """
+        while self.is_tracking():
+            time.sleep(freq)
+
+    def terminate(self):
+        """
+        Terminates the EyeTracker. That is, the video capture is closed down.
+        """
         self.webcam.release()
         cv2.destroyAllWindows()
 
     def is_tracking(self):
-        return self.is_started
+        return self.thread_started and self.thread.is_alive()
     
     def read_face(self):
         # We get a new frame from the webcam
@@ -39,7 +50,7 @@ class EyeTracker(MetaEyeTracker):
         self.gaze.refresh(frame)
 
     def face2quadrant_update(self):
-        assert self.is_started, "The PositionTracker should be started before looking for eye positions."
+        assert self.thread_started, "The PositionTracker should be started before looking for eye positions."
         self.read_face()
         #Wait for user to stop blinking
         while self.gaze.is_blinking() or not self.gaze.pupils_located:
@@ -73,9 +84,9 @@ def test():
     """)
     tracker = EyeTracker()
     tracker.start_tracking()
+    tracker.stop_tracking()
     print(f"Tracked quadrant: {tracker.get_quadrant()}")
 
-    tracker.stop_tracking()
 
 if __name__ == "__main__":
     test()
