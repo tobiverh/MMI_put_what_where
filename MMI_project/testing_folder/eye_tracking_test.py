@@ -1,6 +1,6 @@
 import sys
 import pygame
-from MMI_project.recent_untidy_updates.pygame_testing import centered_square
+from MMI_project.main_folder.pygame_program import centered_square
 from MMI_project.recent_untidy_updates.quadrant_generation import init_quadrant_matrix as quads
 from MMI_project.recent_untidy_updates.quadrant_generation import init_sub_quadrant_matrix as sub_quads
 from MMI_project.recent_untidy_updates.quadrant_generation import get_sub_quadrant_center as quad_center

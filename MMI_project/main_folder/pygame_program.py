@@ -1,8 +1,5 @@
 import sys
 import pygame
-from MMI_project.recent_untidy_updates.quadrant_generation import init_quadrant_matrix as quads
-from MMI_project.recent_untidy_updates.quadrant_generation import init_sub_quadrant_matrix as sub_quads
-from MMI_project.recent_untidy_updates.quadrant_generation import get_sub_quadrant_center as quad_center
 from MMI_project.audio_processing.implemented_recorder import Recorder
 from MMI_project.audio_processing.implemented_speech_recognizer import SpeechRecognizer
 from MMI_project.eye_tracking.implemented_eye_classes import EyeTracker
@@ -97,6 +94,48 @@ def was_pressed(button: int, event: pygame.event.Event) -> bool:
 def was_released(button, event: pygame.event.Event) -> bool:
     """Checks if the given button was released"""
     return event.type == pygame.KEYUP and event.key == button
+
+def quads(screen):
+    """
+    This divides the provided screen into 4 equal parts in the following order: Upper-left, Upper-right, Lower-left,
+    Lower-right
+    :param screen: display object with get_width() and get_height() calls available
+    :return: list of tuples of pygame rectangle requirements (left_x, top_y, width, height) in the following order:
+           @index 0: left, up, 1: right, up, 2: left, down, 3: right, down
+    """
+    return [(0, 0, screen.get_width()/2, screen.get_height()/2),  # left, up
+            (screen.get_width() / 2, 0, screen.get_width() / 2, screen.get_height() / 2),  # right, up
+            (0, screen.get_height()/2, screen.get_width()/2, screen.get_height()/2),  # left, down
+            (screen.get_width()/2, screen.get_height()/2, screen.get_width()/2, screen.get_height()/2)  # right, down
+           ]  # 0: left, up, 1: right, up, 2: left, down, 3: right, down
+
+def sub_quads(quadrants):
+    """
+    This iteratively subdivides the provided quadrants into 4 equal parts in the following order: Upper-left,
+    Upper-right, Lower-left, Lower-right
+    :param quadrants: list of tuples with pygame rectangle requirements (left_x, top_y, width, height)
+    :return: 2D list of tuples of pygame rectangle requirements (left_x, top_y, width, height) in the following order:
+           @index 0: left, up, 1: right, up, 2: left, down, 3: right, down
+    """
+    sub_quads = []
+    for left, top, width, height in quadrants:
+        top_left = (left, top, width / 2, height / 2)
+        top_right = (left + width / 2, top, width / 2, height / 2)
+        bottom_left = (left, top + height / 2, width / 2, height / 2)
+        bottom_right = (left + width / 2, top + height / 2, width / 2, height / 2)
+        sub_quads.append(
+            [top_left, top_right, bottom_left, bottom_right]
+        )
+    return sub_quads
+
+def quad_center(rectangle):
+    """
+    Function unpacks contents of the parameters and returns the center of the object
+    :param rectangle: pygame rectangle with requirements (left_x, top_y, width, height)
+    :return: tuple like: center_x, center_y
+    """
+    left, top, width, height = rectangle
+    return left + width/2, top + height/2
 
 def select_quadrant(num: int, position: tuple[int]):
     """
@@ -345,7 +384,6 @@ def run(INIT_WIDTH=1300, INIT_HEIGHT=700, FONT_NAME = "Times New Roman"):
                 objects_on_image, object_in_hand, displayed_text = action_at_position('put', (quad_idx, subquad_idx), objects_on_image, object_in_hand)
             elif was_pressed(pygame.K_d, event):
                 objects_on_image, object_in_hand, displayed_text = action_at_position('delete', (quad_idx, subquad_idx), objects_on_image, object_in_hand)
-
             # Changing colors ------------------------------------
             elif was_pressed(pygame.K_t, event):
                 text_background = next_color(text_background)
@@ -386,7 +424,7 @@ def run(INIT_WIDTH=1300, INIT_HEIGHT=700, FONT_NAME = "Times New Roman"):
                     displayed_text = f"Made your {get_color_name(color)} {old_shape} a {new_shape}!"
                 else:
                     displayed_text = "No object in hand -> Can't change shape"
-            # Change sizes ----------------------------------------
+            # Change sizes ---------------------------------------
             elif was_pressed(pygame.K_PLUS, event):
                 object_size_factor += 0.05
             elif was_pressed(pygame.K_MINUS, event):
@@ -397,7 +435,7 @@ def run(INIT_WIDTH=1300, INIT_HEIGHT=700, FONT_NAME = "Times New Roman"):
             elif was_pressed(pygame.K_x, event):
                 text_height_factor += 0.01
                 resized = True # We have to resize image and textfield before updating screen
-            # Choose quadrants to add/remove objects --------------
+            # Choose quadrants to add/remove objects -------------
             # ...by pressing number buttons
             elif event.type == pygame.KEYDOWN and event.unicode.isdigit():
                 number = int(event.unicode)
@@ -408,14 +446,14 @@ def run(INIT_WIDTH=1300, INIT_HEIGHT=700, FONT_NAME = "Times New Roman"):
                 eye_tracker.stop_tracking()  # Make sure it finishes
                 number = eye_tracker.get_quadrant()
                 (quad_idx, subquad_idx), displayed_text = select_quadrant(number, (quad_idx, subquad_idx))
-            # Record modal input ---------------------------------
+            # Record multimodal input ----------------------------
             elif was_pressed(pygame.K_SPACE, event):
                 recorder = Recorder('pygame_testing.wav')
                 recorder.start_listening()
                 displayed_text = "Listening..."
                 # Notice where user is looking
                 eye_tracker.start_tracking()
-            # Process modal input --------------------------------
+            # Process multimodal input ---------------------------
             elif was_released(pygame.K_SPACE, event):
                 # Finish processing eye gaze
                 eye_tracker.stop_tracking()
@@ -431,8 +469,9 @@ def run(INIT_WIDTH=1300, INIT_HEIGHT=700, FONT_NAME = "Times New Roman"):
                 speech_input = speech_recognizer.get_message()
                 # Display the recognized message to the user
                 displayed_text = f"Recognized: {speech_input}" # (will be overwritten if input was a valid action)
-        #------------------------------------------------------------------------
-        # Check for modal commands (speech/gaze) --------------------------------
+        # Event check done ------------------------------------------------------
+
+        # Check for modal commands (speech/gaze) -------------------
         if speech_input:
             if speech_input in ACTIONS:
                 # Update selected position
@@ -445,14 +484,13 @@ def run(INIT_WIDTH=1300, INIT_HEIGHT=700, FONT_NAME = "Times New Roman"):
                     objects_on_image, object_in_hand, displayed_text = action_at_position(speech_input, (quad_idx, subquad_idx), objects_on_image, object_in_hand)
                 else:
                     displayed_text = f"You can't {speech_input} with no position"  
-            # Reset speech_input
-            speech_input = ''
-        # Event check done ------------------------------------------------------
+            speech_input = '' #Reset speech_input
+
         # Update measures in case of resizing ----------------------
         if resized:
             image, text_field, font = get_measures(screen, text_height_factor, FONT_NAME)
-            # Reset boolean
-            resized = False
+            resized = False #Reset boolean
+
         # Draw image -----------------------------------------------
         image.fill(image_background)
         # Draw objects onto image
