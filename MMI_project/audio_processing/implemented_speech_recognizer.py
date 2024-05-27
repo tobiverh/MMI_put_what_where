@@ -19,12 +19,12 @@ class SpeechRecognizer(MetaSpeechRecognizer):
         self.thread_started = False
         self.message = ""
 
-    def recognize(self, ranger, recognizer: sr.Recognizer, audio: sr.AudioData):
+    def recognize(self, recognizer: sr.Recognizer, audio: sr.AudioData):
         try:
-            self.message = recognizer.recognize_google(audio)  # recognize audio using google's free audio recognition model
+            self.message = recognizer.recognize_google(audio) # recognize audio using google's free audio recognition model
         except sr.exceptions.UnknownValueError:
-            self.message = 'Could not recognize user input'
-            print('Unknown Value, try again...')
+            self.message = None
+            print('Could not recognize audio input...') #TODO:Remove
 
     def start_recognizing_audio(self):
         if not self.has_audio():
@@ -32,7 +32,7 @@ class SpeechRecognizer(MetaSpeechRecognizer):
         with sr.AudioFile(self.audio_file_path) as source:
             self.recognizer.adjust_for_ambient_noise(source)
             self.audio = self.recognizer.record(source)
-        self.thread = Thread(target=self.recognize, args=(range(10), self.recognizer, self.audio))
+        self.thread = Thread(target=self.recognize, args=(self.recognizer, self.audio))
         self.thread.daemon = True
         self.thread.start()
         self.thread_started = True
