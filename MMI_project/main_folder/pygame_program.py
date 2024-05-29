@@ -18,8 +18,8 @@ COLORS = [BLACK, GRAY, WHITE, RED, GREEN, BLUE, YELLOW, CYAN, MAGENTA]
 """List of all predefined colors. Contains black, gray, white, as well as all primary and secondary colors."""
 SHAPES = ['circle', 'square']
 """List of all drawable shapes. Contains `'circle'` and `'square'`."""
-ACTIONS = ['select', 'back', 'collect', 'release', 'put', 'delete']
-"""All performable actions on a specific position in the image."""
+ACTIONS = ['select', 'go back', 'pick up', 'release', 'new object', 'delete']
+"""All performable actions, either for navigating to a specific position in the image, or making an action in the current position."""
 POSITIONS = [(x,y) for x in range(4) for y in range(4)]
 """All valid positions in the subquadrant grid. Tuples (x,y), where x and y range from 0 to 3."""
 
@@ -185,7 +185,7 @@ def action_at_position(action: str, position: tuple[int], objects_on_image: dict
     """
     Performs an action at the given position in the image. Updates `objects_on_image`, and `object_in_hand` accordingly.
     \n
-    `new_object` defines what kind of object should be added with the action "put". Default is a yellow circle.
+    `new_object` defines what kind of object should be added with the action "new object". Default is a yellow circle.
     \n
     Returns `(objects_on_image, object_in_hand, text)` with updated values after the action is performed, where text is supposed to be displayed to user.
     """
@@ -195,15 +195,15 @@ def action_at_position(action: str, position: tuple[int], objects_on_image: dict
         text = "You tried to perform a non-defined action."
     elif position not in POSITIONS:
         text = f"Can't {action} without a position"
-    elif action == 'collect':
+    elif action == 'pick up':
         if object_in_hand:
-            text = "Can't collect because your hand is full"
+            text = "Can't pick up because your hand is full"
         elif not object_at_position:
-            text = f"No object to collect at {position}"
+            text = f"No object to pick up at {position}"
         else:
             object_in_hand = objects_on_image.pop(position)
             shape, color = object_in_hand
-            text = f"Collected the {get_color_name(color)} {shape} from {position}"
+            text = f"Picked up the {get_color_name(color)} {shape} from {position}"
     elif action == 'release':
         if not object_in_hand:
             text = "You have no object to release."
@@ -214,9 +214,9 @@ def action_at_position(action: str, position: tuple[int], objects_on_image: dict
             objects_on_image[position] = object_in_hand
             object_in_hand = None
             text = f"Released the {get_color_name(color)} {shape} at {position}"
-    elif action == 'put':
+    elif action == 'new object':
         if object_at_position:
-            text = f"Can't put. {position} is occupied"
+            text = f"Can't put anything here. {position} is occupied"
         else:
             objects_on_image[position] = new_object
             shape, color = new_object
@@ -232,7 +232,7 @@ def action_at_position(action: str, position: tuple[int], objects_on_image: dict
         text = f"The action '{action}' isn't implemented yet."
     return objects_on_image, object_in_hand, text
 
-def draw_quadrant(quad_index: int, subquad_index: int, image: pygame.Surface, color: tuple[int] = WHITE, alpha_value : int = 50) -> pygame.Surface:
+def draw_quadrant(position: tuple[int], image: pygame.Surface, color: tuple[int] = WHITE, alpha_value : int = 50) -> pygame.Surface:
     """
     Draws the chosen quadrant onto the image.
     - `quad_index`: int - Chosen index for first-layer quadrant
@@ -246,6 +246,7 @@ def draw_quadrant(quad_index: int, subquad_index: int, image: pygame.Surface, co
     """
     quadrants = quads(image)
     sub_quadrants = sub_quads(quadrants)
+    quad_index, subquad_index = position
     chosen_quadrant = None # The quadrant corresponding to the given indices
     if quad_index >= 0:
         if subquad_index >= 0:
@@ -306,9 +307,9 @@ def print_commands():
           or select position with your (E)ye gaze
 
           Go (B)ack one step in position selection
-          (C)ollect object from chosen position to your hand
+          (P)ick up object from chosen position to your hand
           (R)elease object from your hand to chosen position
-          (P)ut new object onto chosen position
+          Put (N)ew object onto chosen position
           (D)elete object at chosen position
 
           - - make objects smaller
@@ -317,7 +318,9 @@ def print_commands():
           x - make text bigger
 
           'space' - hold down while performing speech command
+          Possible speech commands: 
     """)
+    print(ACTIONS)
 
 def run(INIT_WIDTH=1300, INIT_HEIGHT=700, FONT_NAME = "Times New Roman"):
     # Initialize pygame and main screen ------------------------------------
@@ -331,8 +334,7 @@ def run(INIT_WIDTH=1300, INIT_HEIGHT=700, FONT_NAME = "Times New Roman"):
     object_size_factor = 0.9 #Size of the drawn objects, compared to their quadrants
     text_height_factor = 0.1 #Size of text field compared to whole screen
     # Initialize indices for chosing quadrant ------------------------------
-    quad_idx = -1
-    subquad_idx = -1
+    current_position = (-1, -1)
     # Initialize different regions of screen, and the text font
     image, text_field, font = get_measures(screen, text_height_factor, FONT_NAME)
     # Initialize set of objects --------------------------------------------
@@ -354,7 +356,7 @@ def run(INIT_WIDTH=1300, INIT_HEIGHT=700, FONT_NAME = "Times New Roman"):
     eye_tracker = EyeTracker() # Initiate here for faster response later
     gaze_input = None # Tracked gaze input - [top-left, top-right, bottom-left, bottom-right] --> [0,1,2,3]
 
-    # --- GAME LOOP --- GAME LOOP --- GAME LOOP --- GAME LOOP --- GAME LOOP --- GAME LOOP --- #
+    ###################################### GAME LOOP ##########################################
     while True:
         # Check for events ------------------------------------------------------        
         for event in pygame.event.get():
@@ -375,15 +377,15 @@ def run(INIT_WIDTH=1300, INIT_HEIGHT=700, FONT_NAME = "Times New Roman"):
                     displayed_text = "No objects in hand"
             # Actions --------------------------------------------
             elif was_pressed(pygame.K_b, event):
-                (quad_idx, subquad_idx), displayed_text = undo_selection((quad_idx, subquad_idx))
-            elif was_pressed(pygame.K_c, event):
-                objects_on_image, object_in_hand, displayed_text = action_at_position('collect', (quad_idx, subquad_idx), objects_on_image, object_in_hand)
-            elif was_pressed(pygame.K_r, event):
-                objects_on_image, object_in_hand, displayed_text = action_at_position('release', (quad_idx, subquad_idx), objects_on_image, object_in_hand)
+                current_position, displayed_text = undo_selection(current_position)
             elif was_pressed(pygame.K_p, event):
-                objects_on_image, object_in_hand, displayed_text = action_at_position('put', (quad_idx, subquad_idx), objects_on_image, object_in_hand)
+                objects_on_image, object_in_hand, displayed_text = action_at_position('pick up', current_position, objects_on_image, object_in_hand)
+            elif was_pressed(pygame.K_r, event):
+                objects_on_image, object_in_hand, displayed_text = action_at_position('release', current_position, objects_on_image, object_in_hand)
+            elif was_pressed(pygame.K_n, event):
+                objects_on_image, object_in_hand, displayed_text = action_at_position('new object', current_position, objects_on_image, object_in_hand)
             elif was_pressed(pygame.K_d, event):
-                objects_on_image, object_in_hand, displayed_text = action_at_position('delete', (quad_idx, subquad_idx), objects_on_image, object_in_hand)
+                objects_on_image, object_in_hand, displayed_text = action_at_position('delete', current_position, objects_on_image, object_in_hand)
             # Changing colors ------------------------------------
             elif was_pressed(pygame.K_t, event):
                 text_background = next_color(text_background)
@@ -439,52 +441,50 @@ def run(INIT_WIDTH=1300, INIT_HEIGHT=700, FONT_NAME = "Times New Roman"):
             # ...by pressing number buttons
             elif event.type == pygame.KEYDOWN and event.unicode.isdigit():
                 number = int(event.unicode)
-                (quad_idx, subquad_idx), displayed_text = select_quadrant(number, (quad_idx, subquad_idx))
+                current_position, displayed_text = select_quadrant(number, current_position)
             # ...with eye gaze
             elif was_pressed(pygame.K_e, event):
                 eye_tracker.start_tracking() # Start tracking
-                eye_tracker.stop_tracking()  # Make sure it finishes
+                eye_tracker.finish_tracking()  # Make sure it finishes
                 number = eye_tracker.get_quadrant()
-                (quad_idx, subquad_idx), displayed_text = select_quadrant(number, (quad_idx, subquad_idx))
+                current_position, displayed_text = select_quadrant(number, current_position)
             # Record multimodal input ----------------------------
             elif was_pressed(pygame.K_SPACE, event):
-                recorder = Recorder('pygame_testing.wav')
-                recorder.start_listening()
-                displayed_text = "Listening..."
+                recorder = Recorder('speech_input.wav')
+                recorder.start_recording()
+                displayed_text = "Recording..."
                 # Notice where user is looking
                 eye_tracker.start_tracking()
             # Process multimodal input ---------------------------
             elif was_released(pygame.K_SPACE, event):
-                # Finish processing eye gaze
-                eye_tracker.stop_tracking()
-                gaze_input = eye_tracker.get_quadrant()
                 # Finish audio recording
-                recorder.stop_listening()
+                recorder.finish_recording()
                 # Attach SpeechRecognizer to the recorded audio file
                 speech_recognizer = SpeechRecognizer(recorder.audio_file_path)
                 speech_recognizer.start_recognizing_audio()
-                speech_recognizer.stop_recognizing_audio()
-                assert speech_recognizer.has_recognized_message(), "SpeechRecognizer has no recognized message!"
+                # Finish processing input
+                eye_tracker.finish_tracking()
+                speech_recognizer.finish_recognizing_audio()
                 # Store potential voice command
+                gaze_input = eye_tracker.get_quadrant()
                 speech_input = speech_recognizer.get_message()
                 # Display the recognized message to the user
                 displayed_text = f"Recognized: {speech_input}" # (will be overwritten if input was a valid action)
         # Event check done ------------------------------------------------------
 
         # Check for modal commands (speech/gaze) -------------------
-        if speech_input:
-            if speech_input in ACTIONS:
-                # Update selected position
-                if speech_input == 'select':
-                    (quad_idx, subquad_idx), displayed_text = select_quadrant(gaze_input, (quad_idx, subquad_idx))
-                elif speech_input == 'back':
-                    (quad_idx, subquad_idx), displayed_text = undo_selection((quad_idx, subquad_idx))
-                # All other actions requires a specified position
-                elif (quad_idx, subquad_idx) in POSITIONS:
-                    objects_on_image, object_in_hand, displayed_text = action_at_position(speech_input, (quad_idx, subquad_idx), objects_on_image, object_in_hand)
-                else:
-                    displayed_text = f"You can't {speech_input} with no position"  
-            speech_input = '' #Reset speech_input
+        if speech_input in ACTIONS:
+            # Update selected position
+            if speech_input == 'select':
+                current_position, displayed_text = select_quadrant(gaze_input, current_position)
+            elif speech_input == 'go back':
+                current_position, displayed_text = undo_selection(current_position)
+            # All other actions requires a specified position
+            elif current_position in POSITIONS:
+                objects_on_image, object_in_hand, displayed_text = action_at_position(speech_input, current_position, objects_on_image, object_in_hand)
+            else:
+                displayed_text = f"You can't {speech_input} with no position" 
+        speech_input = '' #Reset speech_input
 
         # Update measures in case of resizing ----------------------
         if resized:
@@ -496,7 +496,7 @@ def run(INIT_WIDTH=1300, INIT_HEIGHT=700, FONT_NAME = "Times New Roman"):
         # Draw objects onto image
         image = draw_objects(objects_on_image, object_size_factor, image)
         # Highlight chosen quadrant in image
-        image = draw_quadrant(quad_idx, subquad_idx, image, next_color(image_background))
+        image = draw_quadrant(current_position, image, next_color(image_background))
 
         # Draw text field -------------------------------------------
         text_field.fill(text_background)
