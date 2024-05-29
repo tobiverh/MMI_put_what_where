@@ -1,4 +1,9 @@
-# Install project
+# Put What Where?
+This is our project for the H2024 course *Multimodal User Interfaces*, given at the University of Fribourg.
+
+The project is an adaptation of the classic *Put That There*, where gestures have been replaced with eye gaze.
+
+## Install project
 To install the project, follow these instructions:
 1. Clone this repository to your computer (or pull, if you already have cloned the project) 
 1. Open a terminal
@@ -11,5 +16,5 @@ To install the project, follow these instructions:
 
 You should now have the project installed.
 
-# Running
+## Running
 ...
