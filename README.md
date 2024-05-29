@@ -12,7 +12,7 @@ To install the project, follow these instructions:
    - The `-e` flag installs the project in editor mode, so you can change the source code (within the `MMI_project` folder)
    without having to re-install. If you don't intend to edit anything, running `pip install .` should be sufficient.
    - `.` refers to your current working directory.
-   - Running `pip` won't work if you don't have Python installed properly on your computer
+   - Running `pip` won't work if you don't have pip installed. Make sure to have Python, version 3.4 or newer, installed properly on your computer. pip is then automatically included.
 
 You should now have the project installed.
 
