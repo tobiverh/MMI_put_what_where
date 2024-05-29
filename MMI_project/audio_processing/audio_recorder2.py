@@ -49,7 +49,6 @@ class AudioRecorder:
         """Refer to
         https://stackoverflow.com/questions/44894796/pyaudio-and-pynput-recording-while-a-key-is-being-pressed-held-down
         """
-
         if self.listener.key_pressed and not started:
             # Start the recording
             try:
@@ -59,12 +58,10 @@ class AudioRecorder:
                                 input=True,
                                 frames_per_buffer=self.CHUNK,
                                 stream_callback=self.callback)
-                print("Stream active:", stream.is_active())
                 started = True
                 self.is_started = True
             except ValueError:
                 print('ValueError thrown... Something seems to be off!')
-
         elif not self.listener.key_pressed and started:
             # Stop the recording
             stream.stop_stream()
@@ -72,7 +69,6 @@ class AudioRecorder:
             p.terminate()
             self.listener.wf.writeframes(b''.join(frames))
             self.listener.wf.close()
-            print("You should have a wav file in the current directory")
             self.is_started = False
             sys.exit()
         # Reschedule the recorder function in 100 ms.

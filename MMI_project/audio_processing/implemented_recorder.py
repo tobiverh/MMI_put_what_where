@@ -25,17 +25,15 @@ class Recorder(MetaRecorder):
                    (self.recorder.is_started, self.recorder.p_thang, self.recorder.stream_in, self.recorder.frame_list))
         self.thread = None
 
-    def start_listening(self):  
+    def start_recording(self):  
         self.thread = Thread(target=self.task.run, args=())
         self.thread.daemon = True
         self.thread.start()
         self.recorder.listener.on_press()
 
-    def stop_listening(self):
+    def finish_recording(self):
         self.recorder.listener.on_release()
-        while self.is_listening() or not self.has_audio():
-            time.sleep(0.05)    # Waiting for recording to finish
-        print("Recorder is done listening.") #TODO: Remove
+        self.thread.join()
 
     def is_listening(self):
         if self.recorder.is_started:

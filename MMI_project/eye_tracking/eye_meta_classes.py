@@ -24,7 +24,7 @@ class MetaEyeTracker(ABC):
         """Sets the eye tracker in tracking mode."""
 
     @abstractmethod
-    def stop_tracking(self):
+    def finish_tracking(self):
         """Makes the eye tracker stop tracking."""
 
     @abstractmethod

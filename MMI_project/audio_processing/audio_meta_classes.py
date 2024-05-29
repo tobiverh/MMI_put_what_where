@@ -1,35 +1,5 @@
 from abc import ABC, abstractmethod
 
-class MetaSpeechRec(ABC):
-    """Meta class for speech recognizers.\n
-    Holds both an AudioRecorder and a SpeechRecognizer.\n
-    Methods:
-    - __init__()
-    - start_listening()
-    - stop_listening()
-    - get_message()
-    - is_listening()"""
-
-    @abstractmethod
-    def __init__(self):
-        """Initializes the speech recognizer."""
-
-    @abstractmethod
-    def start_listening(self):
-        """Sets the speech recognizer in listening mode."""
-
-    @abstractmethod
-    def stop_listening(self):
-        """Makes the speech recognizer stop listening."""
-
-    @abstractmethod
-    def get_message(self):
-        """Returns the recognized message."""
-
-    @abstractmethod
-    def is_listening(self):
-        """Boolean - True if recognizer is listening."""
-
 class MetaRecorder(ABC):
     """Abstract class for audio recorders.\n
     A MetaRecorder should be able to record an audio message, and store it as an audio file.\n
@@ -46,11 +16,11 @@ class MetaRecorder(ABC):
         """Initializes the audio recoder."""
 
     @abstractmethod
-    def start_listening(self):
+    def start_recording(self):
         """Sets the audio recorder in listening mode."""
 
     @abstractmethod
-    def stop_listening(self):
+    def finish_recording(self):
         """Makes the audio recorder stop listening."""
 
     @abstractmethod
@@ -84,10 +54,9 @@ class MetaSpeechRecognizer(ABC):
         """Starts recognizing speech from the given audio file."""
 
     @abstractmethod
-    def stop_recognizing_audio(self, audio):
-        """Stops recognizing speech from the given audio file."""
+    def finish_recognizing_audio(self, audio):
+        """Finish speech recognition from the given audio file."""
     
-
     @abstractmethod
     def get_message(self):
         """Returns the recognized message."""

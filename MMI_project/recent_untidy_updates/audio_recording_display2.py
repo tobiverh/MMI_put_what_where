@@ -253,7 +253,7 @@ def run():
             if done:  # indicates that the recognition_thread has finished
                 time.sleep(0.1)
                 if my_tracker.is_tracking():
-                    my_tracker.stop_tracking()
+                    my_tracker.finish_tracking()
                 # if tracking_thread.is_alive():
                 #     my_tracker.stop_tracking()
                 display_item_list.append((blackout, screen))  # Queue clear screen

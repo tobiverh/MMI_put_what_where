@@ -14,11 +14,11 @@ while recording:
 
         # Handle space key being pressed down!
         if event.type == pygame.KEYDOWN and pygame.key.name(event.key) == 'space':
-            recorder.start_listening()
+            recorder.start_recording()
 
         # Handle space key being released!
         if event.type == pygame.KEYUP and pygame.key.name(event.key) == 'space':         
-            recorder.stop_listening()                  
+            recorder.finish_recording()                  
             recording = False
             break
 
@@ -27,6 +27,6 @@ while recording:
 recognizer = SpeechRecognizer(audio_file_path=recorder.audio_file_path)
 recognizer.start_recognizing_audio()
 
-recognizer.stop_recognizing_audio()
+recognizer.finish_recognizing_audio()
 assert recognizer.has_recognized_message()
 print(f"Recognized message: {recognizer.get_message()}")

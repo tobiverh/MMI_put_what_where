@@ -23,8 +23,7 @@ class SpeechRecognizer(MetaSpeechRecognizer):
         try:
             self.message = recognizer.recognize_google(audio) # recognize audio using google's free audio recognition model
         except sr.exceptions.UnknownValueError:
-            self.message = None
-            print('Could not recognize audio input...') #TODO:Remove
+            self.message = None # Could not recognize audio input...
 
     def start_recognizing_audio(self):
         if not self.has_audio():
@@ -40,24 +39,9 @@ class SpeechRecognizer(MetaSpeechRecognizer):
     def has_audio(self):
         return os.path.exists(self.audio_file_path)
 
-    def stop_recognizing_audio(self, sec_per_dot = 2.0, freq = 0.01):
-        """Stopping the recognizing process, and printing thinking dots while waiting for the recognizer to finish.
-        - `sec_per_dot`: Seconds between each printed thinking dot.
-        - `freq`: Seconds per check if recognizer is still thinking. Should be smaller than `sec_per_dot`"""
-        sec_per_dot = sec_per_dot
-        freq = freq
-        dot_countdown = 0
-        print("Recognizing.", end="")
-        while self.is_recognizing():
-            time.sleep(freq)
-            if dot_countdown < 0:
-                print(".", end="")  # Print thinking dots while recognizing
-                dot_countdown = sec_per_dot
-            else:
-                dot_countdown -= freq
-
-
-        print()  # Add newline after thinking
+    def finish_recognizing_audio(self):
+        """Finnishing the recognizing process"""
+        self.thread.join()
 
     def get_message(self):
         return self.message
@@ -82,11 +66,11 @@ def test():
     release = os.path.abspath(os.path.join(path, 'release.wav'))
     rec = SpeechRecognizer(select)
     rec.start_recognizing_audio()
-    rec.stop_recognizing_audio()
+    rec.finish_recognizing_audio()
     print(f"Recognized 'select' as : {rec.get_message()}")
     rec = SpeechRecognizer(release)
     rec.start_recognizing_audio()
-    rec.stop_recognizing_audio()
+    rec.finish_recognizing_audio()
     print(f"Recognized 'release' as : {rec.get_message()}")
 
 if __name__ == "__main__":

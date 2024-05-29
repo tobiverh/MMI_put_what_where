@@ -145,7 +145,7 @@ class MyGaze(MetaEyeTracker):
     def start_tracking(self):
         self.started = True
 
-    def stop_tracking(self):
+    def finish_tracking(self):
         self.started = False
 
     def is_tracking(self):
@@ -211,7 +211,7 @@ def run():
             # interpreted and is ready for inference
             if done:
                 # Stop eye tracking, it holds the previous position in memory
-                gazer.stop_tracking()
+                gazer.finish_tracking()
                 done = False
 
                 # If the message reads 'select', we select the quadrant or sub quadrant returned by the 'gaze tracker'

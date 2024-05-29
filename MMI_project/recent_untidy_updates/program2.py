@@ -100,14 +100,14 @@ def run():
 
             # Handle space key being pressed down!
             if event.type == pygame.KEYDOWN and pygame.key.name(event.key) == 'space':
-                imp_recorder.start_listening()
+                imp_recorder.start_recording()
                 listened_since = time.time()  # start timer for how long listening lasts
 
             # Handle space key being released!
             elif event.type == pygame.KEYUP and pygame.key.name(event.key) == 'space':
-                imp_recorder.stop_listening()
+                imp_recorder.finish_recording()
                 imp_recognizer.start_recognizing_audio()
-                imp_recognizer.stop_recognizing_audio()
+                imp_recognizer.finish_recognizing_audio()
 
             # Handle recognized speech command
             if imp_recognizer.has_recognized_message():

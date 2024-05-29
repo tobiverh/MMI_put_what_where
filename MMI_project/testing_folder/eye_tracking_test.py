@@ -114,7 +114,7 @@ def run(INIT_WIDTH=1300, INIT_HEIGHT=700, FONT_NAME = "Times New Roman"):
             # ...with eye gaze
             elif was_pressed('space', event):
                 eye_tracker.start_tracking()
-                eye_tracker.stop_tracking()
+                eye_tracker.finish_tracking()
                 gaze_input = eye_tracker.get_quadrant()
                 if centered:
                     count_center_trials += 1

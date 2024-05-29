@@ -6,6 +6,10 @@ from MMI_project.eye_tracking.eye_meta_classes import MetaEyeTracker
 
 
 class EyeTracker(MetaEyeTracker):
+    """
+    EyeTracker that tracks the position of the user's eye gaze, assigning it a quadrant on the screen (top-left, top-right, bottom-left, bottom-right).
+    For the EyeTracker to work, the device needs to have a camera that is not currently used by any other software.
+    """
     def __init__(self):
         self.gaze = GazeTracking()
         self.webcam = cv2.VideoCapture(0)
@@ -26,12 +30,11 @@ class EyeTracker(MetaEyeTracker):
         self.thread_started = True
         self.thread.start()
 
-    def stop_tracking(self, freq = 0.01):
+    def finish_tracking(self, freq = 0.01):
         """
         Waits for EyeTracker to finish the job of tracking user's eye gaze.
         """
-        while self.is_tracking():
-            time.sleep(freq)
+        self.thread.join()
 
     def terminate(self):
         """
@@ -84,7 +87,7 @@ def test():
     """)
     tracker = EyeTracker()
     tracker.start_tracking()
-    tracker.stop_tracking()
+    tracker.finish_tracking()
     print(f"Tracked quadrant: {tracker.get_quadrant()}")
 
 
