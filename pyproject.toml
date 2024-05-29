@@ -1,7 +1,7 @@
 [project]
 name = "MMI_put_what_where"
 authors = [{name = "Tobias Verheijen"}, {name = "Mathias Øgaard"}]
-version = "0.1.0"
+version = "1.1.0"
 dependencies = [
     "numpy",
     "pygame",
