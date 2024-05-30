@@ -1,9 +1,10 @@
 Metadata-Version: 2.1
 Name: MMI_put_what_where
-Version: 0.1.0
+Version: 1.1.0
 Author: Tobias Verheijen, Mathias Øgaard
 Requires-Python: >=3.10
 Requires-Dist: numpy
 Requires-Dist: pygame
 Requires-Dist: pyaudio
+Requires-Dist: SpeechRecognition
 Requires-Dist: dlib
