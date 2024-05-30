@@ -3,6 +3,11 @@ This is our project for the H2024 course *Multimodal User Interfaces*, given at 
 
 The project is an adaptation of the classic *Put That There*, where gestures have been replaced with eye gaze.
 
+Watch the demo video by clicking the image below:
+
+[![Watch demo video](https://github.com/tobiverh/MMI_put_what_where/assets/126837440/0ffa956d-d09d-498c-9a3f-dfb9087542ad)](https://youtu.be/Y2lKr7QXI-k)
+
+
 ## Install project
 To install the project, follow these instructions:
 1. Clone this repository to your computer (or pull, if you already have cloned the project)
@@ -31,6 +36,3 @@ However, if you are a new user, here is a list of things that could be useful to
 - When giving eye gaze input: The closer to the middle of the screen you look, the worse the performance will be. Therefore, we recommend to look at the far corners of your screen to select a quadrant. The diagram below shows the accuracy of the `EyeTracker`, depending on where you are looking.
 
 ![eye_tracking_results](https://github.com/tobiverh/MMI_put_what_where/assets/126837440/04598f20-5ec0-4f85-a175-dcb5f22a5de3)
-
-## Demo
-[![Watch demo video](https://github.com/tobiverh/MMI_put_what_where/assets/126837440/0ffa956d-d09d-498c-9a3f-dfb9087542ad)](https://youtu.be/Y2lKr7QXI-k)
