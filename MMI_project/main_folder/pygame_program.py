@@ -18,7 +18,7 @@ COLORS = [BLACK, GRAY, WHITE, RED, GREEN, BLUE, YELLOW, CYAN, MAGENTA]
 """List of all predefined colors. Contains black, gray, white, as well as all primary and secondary colors."""
 SHAPES = ['circle', 'square']
 """List of all drawable shapes. Contains `'circle'` and `'square'`."""
-ACTIONS = ['select', 'go back', 'pick up', 'release', 'new object', 'delete']
+ACTIONS = ['select', 'go back', 'pick up', 'collect', 'release', 'new object', 'delete']
 """All performable actions, either for navigating to a specific position in the image, or making an action in the current position."""
 POSITIONS = [(x,y) for x in range(4) for y in range(4)]
 """All valid positions in the subquadrant grid. Tuples (x,y), where x and y range from 0 to 3."""
@@ -195,7 +195,7 @@ def action_at_position(action: str, position: tuple[int], objects_on_image: dict
         text = "You tried to perform a non-defined action."
     elif position not in POSITIONS:
         text = f"Can't {action} without a position"
-    elif action == 'pick up':
+    elif action == 'pick up' or action == 'collect':
         if object_in_hand:
             text = "Can't pick up because your hand is full"
         elif not object_at_position:
