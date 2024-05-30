@@ -11,13 +11,22 @@ def load_file(file_name):
 
 
 if __name__ == '__main__':
-    word_names = ['back', 'collect', 'delete', 'put', 'release', 'select']
+    word_names = ['go_back', 'pick_up', 'collect', 'delete', 'new_object', 'release', 'select']
     word_accuracies = []
     word_ttests = []
+    run_1 = []
+    run_2 = []
     for word_name in word_names:
         word_df = load_file(word_name + '.csv')
+        run_1.append(word_df.get('run_1'))
+        run_2.append(word_df.get('run_2'))
         word_ttests.append((word_name, ttest_rel(word_df.get('run_1'), word_df.get('run_2'), alternative='less')))
         word_accuracies.append([np.mean(word_df.get('run_1')), np.mean(word_df.get('run_2'))])
+
+    r1_mean = np.array(np.mean([r1.values for r1 in run_1], axis=0))
+    r2_mean = np.array(np.mean([r2.values for r2 in run_2], axis=0))
+    word_ttests.append(['average', ttest_rel(r1_mean, r2_mean, alternative='less')])
+    word_accuracies.append([np.mean(r1_mean), np.mean(r2_mean)])
 
     word_accuracies = np.array(word_accuracies)
     print(word_accuracies[:, 0])
@@ -48,7 +57,7 @@ if __name__ == '__main__':
     plt.xlabel('Word Tested')
     plt.ylabel('Accuracy')
     plt.title('Paired Accuracy T-Test Results')
-    plt.xticks(indices, word_names)  # Set x-ticks to be at the indices
+    plt.xticks(indices, word_names + ['average'])  # Set x-ticks to be at the indices
     plt.legend(loc='upper right')
     plt.grid(axis='y')
 
