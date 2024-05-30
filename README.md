@@ -8,7 +8,7 @@ To install the project, follow these instructions:
 1. Clone this repository to your computer (or pull, if you already have cloned the project)
 2. Make sure to have Python (version >=3.10) installed properly
 3. Open a terminal
-4. Navigate your directory to `.../MMI_put_what_where`
+4. Navigate your directory to `...\MMI_put_what_where`
 5. Run `pip install -e .`
    - The `-e` flag installs the project in editor mode, so you can change the source code (within the `MMI_project` folder)
    without having to re-install. If you don't intend to edit anything, running `pip install .` should be sufficient.
@@ -18,7 +18,7 @@ You should now have the project installed.
 
 ## Running
 1. Open a terminal
-2. Navigate your directory to `.../MMI_put_what_where`
+2. Navigate your directory to `...\MMI_put_what_where`
 3. Run `python .\MMI_project\main_folder\main.py`
 
 When performing step 3, a pygame-window should pop up, looking like this:
