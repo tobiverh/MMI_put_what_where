@@ -28,7 +28,7 @@ You should now have the project installed.
 
 When performing step 3, a pygame-window should pop up, looking like this:
 
-![MMI_put_what_where_initial_display](https://github.com/tobiverh/MMI_put_what_where/assets/126837440/0ffa956d-d09d-498c-9a3f-dfb9087542ad)
+[![Watch demo video](https://github.com/tobiverh/MMI_put_what_where/assets/126837440/0ffa956d-d09d-498c-9a3f-dfb9087542ad)](https://youtu.be/Y2lKr7QXI-k)
 
 Additionaly, your terminal should print a list of all the things you can do in the pygame program.
 However, if you are a new user, here is a list of things that could be useful to know:
