@@ -33,4 +33,4 @@ However, if you are a new user, here is a list of things that could be useful to
 ![eye_tracking_results](https://github.com/tobiverh/MMI_put_what_where/assets/126837440/04598f20-5ec0-4f85-a175-dcb5f22a5de3)
 
 ## Demo
-[![Watch the video](https://www.youtube.com/watch?v=Y2lKr7QXI-k/maxresdefault.jpg)](https://youtu.be/Y2lKr7QXI-k)
+[![Watch demo video](https://github.com/tobiverh/MMI_put_what_where/assets/126837440/0ffa956d-d09d-498c-9a3f-dfb9087542ad)](https://youtu.be/Y2lKr7QXI-k)
