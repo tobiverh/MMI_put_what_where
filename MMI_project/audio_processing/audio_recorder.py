@@ -4,7 +4,6 @@
 
 import pyaudio
 import sys
-# from MyListener import MyListener
 from MMI_project.audio_processing.wav_handler import WavHandler
 
 

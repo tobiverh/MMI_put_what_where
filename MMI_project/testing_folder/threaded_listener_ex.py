@@ -25,7 +25,7 @@ def recognize_worker():
             # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
             # instead of `r.recognize_google(audio)`
             print('I\'m here now?')
-            print("Google Speech Recognition thinks you said " + r.recognize_google(audio))
+            print("Google Speech Recognition thinks you said: " + r.recognize_google(audio))
         except sr.UnknownValueError:
             print("Google Speech Recognition could not understand audio")
         except sr.RequestError as e:

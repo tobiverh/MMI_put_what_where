@@ -1,10 +1,15 @@
-from MMI_project.audio_processing.implemented_recorder import Recorder
-from MMI_project.audio_processing.implemented_speech_recognizer import SpeechRecognizer
+from MMI_project.audio_processing.recorder import Recorder
+from MMI_project.audio_processing.speech_recognizer import SpeechRecognizer
+from MMI_project.main_folder.useful_functions import draw_text
 import pygame
 
 pygame.init()
 pygame.display.init()
-pygame.display.set_mode(list(pygame.display.get_desktop_sizes()[0]))
+screen = pygame.display.set_mode(list(pygame.display.get_desktop_sizes()[0]))
+draw_text(text="Talk while pressing space. Program will end when you release it.",
+          font=pygame.font.SysFont("Times New Roman", 30),
+          color=(255,255,255),
+          text_surface=screen)
 
 recorder = Recorder('audio_recording_test.wav')
 recording = True

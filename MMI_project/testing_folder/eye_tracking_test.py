@@ -1,12 +1,10 @@
 import sys
 import pygame
 from MMI_project.main_folder.pygame_program import centered_square
-from MMI_project.recent_untidy_updates.quadrant_generation import init_quadrant_matrix as quads
-from MMI_project.recent_untidy_updates.quadrant_generation import init_sub_quadrant_matrix as sub_quads
-from MMI_project.recent_untidy_updates.quadrant_generation import get_sub_quadrant_center as quad_center
-from MMI_project.audio_processing.implemented_recorder import Recorder
-from MMI_project.audio_processing.implemented_speech_recognizer import SpeechRecognizer
-from MMI_project.eye_tracking.implemented_eye_classes import EyeTracker
+from MMI_project.main_folder.useful_functions import quads, sub_quads, quad_center
+from MMI_project.audio_processing.recorder import Recorder
+from MMI_project.audio_processing.speech_recognizer import SpeechRecognizer
+from MMI_project.eye_tracking.eye_tracker import EyeTracker
 
 BLACK = (0,0,0)
 GRAY = (100,100,100)

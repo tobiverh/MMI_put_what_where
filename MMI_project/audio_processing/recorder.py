@@ -1,5 +1,5 @@
-from MMI_project.audio_processing.audio_meta_classes import MetaRecorder
-from MMI_project.audio_processing.audio_recorder2 import AudioRecorder
+from MMI_project.audio_processing.meta_classes import MetaRecorder
+from MMI_project.audio_processing.audio_recorder import AudioRecorder
 import time
 import os
 import sched
@@ -48,12 +48,6 @@ class Recorder(MetaRecorder):
         """Returns the filename of the stored audio clip."""
         assert self.has_audio(), "Couldn't get audio because the audio file didn't exist."
         return self.audio_file_path
-
-    # def clear(self):
-    #     """Removes existing file (if there is one) from the recorder's output path."""
-    #     self.recorder.listener = None   # Can't remove file while the listener is writing to it
-    #     os.remove(self.audio_file_path)
-    #     self.recorder.listener = self.recorder.create_listener() # Create new listener
 
 def test():
     path = os.path.dirname(os.path.abspath(__file__))

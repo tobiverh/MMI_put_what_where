@@ -2,7 +2,7 @@ from threading import Thread
 import time
 import cv2
 from MMI_project.eye_tracking.GazeTracking.gaze_tracking.gaze_tracking import GazeTracking
-from MMI_project.eye_tracking.eye_meta_classes import MetaEyeTracker
+from MMI_project.eye_tracking.meta_class import MetaEyeTracker
 
 
 class EyeTracker(MetaEyeTracker):
