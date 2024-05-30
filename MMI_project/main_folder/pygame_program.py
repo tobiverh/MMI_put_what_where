@@ -7,6 +7,7 @@ from MMI_project.main_folder.useful_functions import *
 
 def print_commands():
     print("""
+    Welcome to 'Put What Where?'!
     Commands:
           check your (H)and for objects
           
