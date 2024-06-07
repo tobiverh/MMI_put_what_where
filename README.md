@@ -4,7 +4,7 @@ This is our project for the H2024 course *Multimodal User Interfaces*, given at 
 The project is an adaptation of the classic *Put That There*, where gestures have been replaced with eye gaze.
 If you want to read a more detailed description of our project, please refer to the [report](Final_Report.pdf).
 
-Watch the demo video by clicking the image below:
+Watch our demo video by clicking the image below:
 
 [![Watch demo video](https://github.com/tobiverh/MMI_put_what_where/assets/126837440/0ffa956d-d09d-498c-9a3f-dfb9087542ad)](https://youtu.be/Y2lKr7QXI-k)
 
