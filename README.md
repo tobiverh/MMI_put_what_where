@@ -37,3 +37,6 @@ However, if you are a new user, here is a list of things that could be useful to
 - Check out the demo video for examples of use! (See top of this README)
 
 ![eye_tracking_results](https://github.com/tobiverh/MMI_put_what_where/assets/126837440/04598f20-5ec0-4f85-a175-dcb5f22a5de3)
+
+## Report
+For a more detailed descirption of our project, please refer to our [Report](Final_Report.pdf).
